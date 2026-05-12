@@ -1,34 +1,64 @@
-<div class="scene">
-  <div class="controls">
-    <button id="shuffleBtn">Barajar</button>
-    <button id="randomBtn">Carta aleatoria</button>
-  </div>
+<!DOCTYPE html>
+<html lang="es">
 
-  <div class="timer" id="timer">30</div>
-  <div class="deck" id="deck"></div>
-</div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{margin:0;overflow:hidden;}
+
+html,body{
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#050008;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+  position:relative;
+}
 
 .scene{
-  width:100vw;height:100vh;background:#050008;position:relative;
-  overflow:hidden;font-family:Arial,Helvetica,sans-serif;touch-action:manipulation;
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#050008;
 }
 
 .controls{
-  position:absolute;top:18px;left:18px;z-index:9999;display:flex;gap:10px;
+  position:absolute;
+  top:20px;
+  left:20px;
+  z-index:9999;
+  display:flex;
+  gap:10px;
 }
 
 button{
-  padding:12px 18px;border:none;border-radius:12px;background:#6d16d9;
-  color:white;font-size:15px;font-weight:bold;cursor:pointer;
+  padding:12px 18px;
+  border:none;
+  border-radius:14px;
+  background:#6d16d9;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
   box-shadow:0 5px 12px rgba(0,0,0,.25);
 }
 
 .timer{
-  position:absolute;top:24px;right:30px;color:white;font-size:34px;
-  font-weight:bold;z-index:9999;display:none;
+  position:absolute;
+  top:20px;
+  right:24px;
+  color:white;
+  font-size:30px;
+  font-weight:bold;
+  z-index:9999;
+  display:none;
 }
 
 .deck{
@@ -36,93 +66,171 @@ button{
   width:820px;
   height:450px;
   left:50%;
-  top:58%;
-  transform:translate(-50%,-50%) scale(.55);
+  top:55%;
+  transform:translate(-50%,-50%) scale(.85);
   transform-origin:center center;
 }
 
 .card{
-  position:absolute;width:780px;height:330px;left:20px;top:40px;
-  border-radius:26px;cursor:pointer;transition:all .8s ease;perspective:1200px;
+  position:absolute;
+  width:780px;
+  height:330px;
+  left:20px;
+  top:40px;
+  border-radius:26px;
+  cursor:pointer;
+  transition:all .8s ease;
+  perspective:1200px;
 }
 
 .card-inner{
-  width:100%;height:100%;position:relative;transform-style:preserve-3d;
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
   transition:transform .7s ease;
 }
 
-.card.flipped .card-inner{transform:rotateY(180deg);}
+.card.flipped .card-inner{
+  transform:rotateY(180deg);
+}
 
-.card-front,.card-back{
-  position:absolute;width:100%;height:100%;border-radius:26px;
-  backface-visibility:hidden;overflow:hidden;box-sizing:border-box;
+.card-front,
+.card-back{
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:26px;
+  overflow:hidden;
+  backface-visibility:hidden;
+  box-sizing:border-box;
 }
 
 .card-front{
-  background:#f7f2e7;padding:34px 50px;box-shadow:14px 14px 0 var(--shadow);
+  background:#f7f2e7;
+  padding:34px 50px;
+  box-shadow:14px 14px 0 var(--shadow);
 }
 
 .card-back{
-  background:var(--cardColor);transform:rotateY(180deg);display:flex;
-  flex-direction:column;justify-content:center;align-items:center;color:white;
+  background:var(--cardColor);
+  transform:rotateY(180deg);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  color:white;
   box-shadow:14px 14px 0 var(--shadow);
 }
 
 .card-back::before{
-  content:"";position:absolute;width:140%;height:140%;
-  background:repeating-linear-gradient(
-    45deg,
-    rgba(255,255,255,.05),
-    rgba(255,255,255,.05) 12px,
-    transparent 12px,
-    transparent 24px
-  );
+  content:"";
+  position:absolute;
+  width:140%;
+  height:140%;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.05),
+      rgba(255,255,255,.05) 12px,
+      transparent 12px,
+      transparent 24px
+    );
   transform:rotate(8deg);
 }
 
 .back-drawing{
-  position:relative;z-index:2;width:140px;height:140px;
-  object-fit:contain;margin-bottom:18px;
+  position:relative;
+  z-index:2;
+  width:140px;
+  height:140px;
+  object-fit:contain;
+  margin-bottom:18px;
 }
 
 .back-title{
-  position:relative;z-index:2;font-size:42px;font-weight:900;letter-spacing:2px;
+  position:relative;
+  z-index:2;
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:2px;
 }
 
 .back-sub{
-  position:relative;z-index:2;margin-top:12px;font-size:18px;opacity:.9;
+  position:relative;
+  z-index:2;
+  margin-top:12px;
+  font-size:18px;
+  opacity:.9;
 }
 
 .close-front-btn{
-  position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;
-  background:#111;color:white;display:flex;align-items:center;justify-content:center;
-  font-size:25px;font-weight:900;z-index:30;
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:#111;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:25px;
+  font-weight:900;
+  z-index:30;
 }
 
 .tape{
-  position:absolute;width:100px;height:30px;background:var(--cardColor);
-  top:-10px;left:60px;transform:rotate(-12deg);
+  position:absolute;
+  width:100px;
+  height:30px;
+  background:var(--cardColor);
+  top:-10px;
+  left:60px;
+  transform:rotate(-12deg);
 }
 
 .header{
-  display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:48px;
 }
 
 .label{
-  background:var(--cardColor);color:white;padding:14px 26px;transform:rotate(-3deg);
+  background:var(--cardColor);
+  color:white;
+  padding:14px 26px;
+  transform:rotate(-3deg);
   min-width:310px;
 }
 
-.label-title{font-size:28px;font-weight:900;text-transform:uppercase;}
-.label-sub{font-size:18px;margin-top:4px;}
+.label-title{
+  font-size:28px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.label-sub{
+  font-size:18px;
+  margin-top:4px;
+}
 
 .counter{
-  color:var(--cardColor);font-size:22px;font-weight:900;
+  color:var(--cardColor);
+  font-size:22px;
+  font-weight:900;
 }
 
 .question{
-  font-size:42px;line-height:1.08;text-align:center;color:#050505;
-  font-weight:900;max-width:640px;margin:0 auto;
+  font-size:42px;
+  line-height:1.08;
+  text-align:center;
+  color:#050505;
+  font-weight:900;
+  max-width:640px;
+  margin:0 auto;
 }
 
 .instruction{
@@ -134,10 +242,16 @@ button{
 }
 
 .star{
-  position:absolute;right:30px;bottom:20px;font-size:44px;color:#111;
+  position:absolute;
+  right:30px;
+  bottom:20px;
+  font-size:44px;
+  color:#111;
 }
 
-.alarm{animation:shake .15s infinite;}
+.alarm{
+  animation:shake .15s infinite;
+}
 
 @keyframes shake{
   0%{transform:translateX(0);}
@@ -148,17 +262,68 @@ button{
 }
 
 @media (max-width:900px){
+
   .deck{
     left:50%;
-    top:58%;
-    transform:translate(-50%,-50%) scale(.35);
+    top:55%;
+    transform:
+      translate(-50%,-50%)
+      scale(.42);
   }
+
+  .controls{
+    top:10px;
+    left:10px;
+    gap:6px;
+  }
+
+  button{
+    font-size:11px;
+    padding:8px 10px;
+  }
+
+  .timer{
+    font-size:20px;
+    top:14px;
+    right:14px;
+  }
+
 }
+
 </style>
+</head>
+
+<body>
+
+<div class="scene">
+
+  <div class="controls">
+    <button id="shuffleBtn">Barajar</button>
+    <button id="randomBtn">Carta aleatoria</button>
+  </div>
+
+  <div class="timer" id="timer">30</div>
+
+  <div class="deck" id="deck"></div>
+
+</div>
 
 <script>
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/1TNjFeeLHmZxSJTIzpYOpQTcaZj8-pSK59IkAL1aV6Xo/edit?usp=sharing";
+/*
+========================================================
+PON AQUI TU LINK CSV DE GOOGLE SHEETS
+========================================================
+*/
+
+const sheetURL =
+"https://docs.google.com/spreadsheets/d/e/TU_LINK/pub?output=csv";
+
+/*
+========================================================
+FIN LINK
+========================================================
+*/
 
 let cardsData = [];
 
@@ -170,7 +335,10 @@ let tickInterval;
 let activeCard = null;
 
 function darkenColor(hex, percent){
-  if(!hex || !hex.startsWith("#")) return "#43108f";
+
+  if(!hex || !hex.startsWith("#")){
+    return "#43108f";
+  }
 
   hex = hex.replace("#","");
 
@@ -183,268 +351,472 @@ function darkenColor(hex, percent){
   b = Math.floor(b * (100 - percent) / 100);
 
   return `rgb(${r},${g},${b})`;
+
 }
 
 function parseCSV(text){
-  const rows = text.trim().split(/\r?\n/);
-  const headers = rows[0].split(",").map(h => h.trim());
+
+  const rows =
+    text.trim().split(/\r?\n/);
+
+  const headers =
+    rows[0].split(",").map(h => h.trim());
 
   return rows.slice(1).map(row => {
-    const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+
+    const values =
+      row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+
     const item = {};
 
     headers.forEach((header, index) => {
-      item[header] = values[index]
-        ? values[index].replace(/^"|"$/g, "").trim()
+
+      item[header] =
+        values[index]
+        ? values[index]
+            .replace(/^"|"$/g, "")
+            .trim()
         : "";
+
     });
 
     return item;
+
   });
+
 }
 
 function loadSheet(){
+
   fetch(sheetURL)
     .then(response => response.text())
     .then(csv => {
+
       cardsData = parseCSV(csv);
+
       createDeck();
+
     })
-    .catch(() => {
-      deck.innerHTML = "<p style='color:white;font-size:24px;'>No se pudo cargar Google Sheets.</p>";
+    .catch(error => {
+
+      console.log(error);
+
+      deck.innerHTML =
+        "<p style='color:white;font-size:24px;'>No se pudo cargar Google Sheets.</p>";
+
     });
+
 }
 
 function playShuffleSound(){
+
   const ctx = new AudioContext();
 
   for(let i = 0; i < 28; i++){
-    const bufferSize = ctx.sampleRate * 0.03;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
+
+    const bufferSize =
+      ctx.sampleRate * 0.03;
+
+    const buffer =
+      ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+
+    const data =
+      buffer.getChannelData(0);
 
     for(let j = 0; j < bufferSize; j++){
-      data[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufferSize / 6));
+
+      data[j] =
+        (Math.random() * 2 - 1) *
+        Math.exp(-j / (bufferSize / 6));
+
     }
 
-    const noise = ctx.createBufferSource();
+    const noise =
+      ctx.createBufferSource();
+
     noise.buffer = buffer;
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.frequency.value = 1800 + Math.random() * 1200;
+    const filter =
+      ctx.createBiquadFilter();
 
-    const gain = ctx.createGain();
+    filter.type = "bandpass";
+
+    filter.frequency.value =
+      1800 + Math.random() * 1200;
+
+    const gain =
+      ctx.createGain();
+
     gain.gain.value = 0.06;
 
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(ctx.destination);
 
-    const time = ctx.currentTime + i * 0.025;
+    const time =
+      ctx.currentTime + i * 0.025;
+
     noise.start(time);
     noise.stop(time + 0.03);
+
   }
+
 }
 
 function playTickTackSound(){
+
   const ctx = new AudioContext();
 
   function tick(freq, delay){
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+
+    const osc =
+      ctx.createOscillator();
+
+    const gain =
+      ctx.createGain();
 
     osc.type = "square";
     osc.frequency.value = freq;
 
-    gain.gain.setValueAtTime(0.055, ctx.currentTime + delay);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.04);
+    gain.gain.setValueAtTime(
+      0.055,
+      ctx.currentTime + delay
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      ctx.currentTime + delay + 0.04
+    );
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(ctx.currentTime + delay);
     osc.stop(ctx.currentTime + delay + 0.04);
+
   }
 
   tick(900,0);
   tick(620,.45);
+
 }
 
 function playAlarmSound(){
+
   const ctx = new AudioContext();
 
   for(let i = 0; i < 12; i++){
-    const bell1 = ctx.createOscillator();
-    const bell2 = ctx.createOscillator();
-    const gain = ctx.createGain();
+
+    const bell1 =
+      ctx.createOscillator();
+
+    const bell2 =
+      ctx.createOscillator();
+
+    const gain =
+      ctx.createGain();
 
     bell1.type = "triangle";
     bell2.type = "sine";
 
-    bell1.frequency.value = i % 2 === 0 ? 1550 : 1250;
-    bell2.frequency.value = i % 2 === 0 ? 1585 : 1285;
+    bell1.frequency.value =
+      i % 2 === 0 ? 1550 : 1250;
 
-    gain.gain.setValueAtTime(0.32, ctx.currentTime + i * 0.16);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.16 + 0.12);
+    bell2.frequency.value =
+      i % 2 === 0 ? 1585 : 1285;
+
+    gain.gain.setValueAtTime(
+      0.32,
+      ctx.currentTime + i * 0.16
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      ctx.currentTime + i * 0.16 + 0.12
+    );
 
     bell1.connect(gain);
     bell2.connect(gain);
+
     gain.connect(ctx.destination);
 
-    const start = ctx.currentTime + i * 0.16;
+    const start =
+      ctx.currentTime + i * 0.16;
 
     bell1.start(start);
     bell2.start(start);
 
     bell1.stop(start + 0.13);
     bell2.stop(start + 0.13);
+
   }
 
   if(navigator.vibrate){
-    navigator.vibrate([120,80,120,80,120,80,250]);
+
+    navigator.vibrate([
+      120,80,120,80,120,80,250
+    ]);
+
   }
+
 }
 
 function stopTimer(){
+
   clearInterval(timerInterval);
   clearInterval(tickInterval);
 
   timerBox.style.display = "none";
   timerBox.classList.remove("alarm");
+
 }
 
 function createDeck(){
+
   deck.innerHTML = "";
 
   cardsData.forEach((cardData,index)=>{
-    const mainColor = cardData.color || "#6d16d9";
-    const shadowColor = cardData.sombra || darkenColor(mainColor, 35);
 
-    const card = document.createElement("div");
+    const mainColor =
+      cardData.color || "#6d16d9";
+
+    const shadowColor =
+      cardData.sombra ||
+      darkenColor(mainColor, 35);
+
+    const card =
+      document.createElement("div");
+
     card.className = "card flipped";
 
-    card.style.setProperty("--cardColor", mainColor);
-    card.style.setProperty("--shadow", shadowColor);
+    card.style.setProperty(
+      "--cardColor",
+      mainColor
+    );
+
+    card.style.setProperty(
+      "--shadow",
+      shadowColor
+    );
 
     card.innerHTML = `
+
       <div class="card-inner">
 
         <div class="card-front">
-          <div class="close-front-btn">×</div>
+
+          <div class="close-front-btn">
+            ×
+          </div>
+
           <div class="tape"></div>
 
           <div class="header">
+
             <div class="label">
-              <div class="label-title">${cardData.titulo || "SIN TÍTULO"}</div>
-              <div class="label-sub">${cardData.subtitulo || ""}</div>
+
+              <div class="label-title">
+                ${cardData.titulo || "SIN TITULO"}
+              </div>
+
+              <div class="label-sub">
+                ${cardData.subtitulo || ""}
+              </div>
+
             </div>
 
-            <div class="counter">${index+1}/${cardsData.length}</div>
+            <div class="counter">
+              ${index+1}/${cardsData.length}
+            </div>
+
           </div>
 
-          <div class="question">${cardData.pregunta || ""}</div>
+          <div class="question">
+            ${cardData.pregunta || ""}
+          </div>
 
-          <div class="instruction">${cardData.instruccion || ""}</div>
+          <div class="instruction">
+            ${cardData.instruccion || ""}
+          </div>
 
-          <div class="star">✶</div>
+          <div class="star">
+            ✶
+          </div>
+
         </div>
 
         <div class="card-back">
-          <img class="back-drawing" src="${cardData.imagen || ""}">
-          <div class="back-title">${cardData.titulo || "CARTA"}</div>
-          <div class="back-sub">Toca para revelar</div>
+
+          <img
+            class="back-drawing"
+            src="${cardData.imagen || ""}"
+          >
+
+          <div class="back-title">
+            ${cardData.titulo || "CARTA"}
+          </div>
+
+          <div class="back-sub">
+            Toca para revelar
+          </div>
+
         </div>
 
       </div>
+
     `;
 
     card.addEventListener("click",()=>{
-      const isHidden = card.classList.contains("flipped");
+
+      const isHidden =
+        card.classList.contains("flipped");
 
       card.classList.toggle("flipped");
 
       if(navigator.vibrate){
+
         navigator.vibrate(40);
+
       }
 
       if(isHidden){
+
         activeCard = card;
-        startTimer(cardData.tiempo || 30);
+
+        startTimer(
+          cardData.tiempo || 30
+        );
+
       }else{
+
         stopTimer();
+
         activeCard = null;
+
       }
+
     });
 
     deck.appendChild(card);
+
   });
 
   stackCards();
+
 }
 
 function stackCards(){
-  const cards = document.querySelectorAll(".card");
+
+  const cards =
+    document.querySelectorAll(".card");
 
   cards.forEach((card,index)=>{
+
     card.style.opacity = "1";
-    card.style.transition = "all .8s ease";
-    card.style.transform = `translate(${index*3}px,${index*2}px) rotate(${-4 + (index % 5)}deg)`;
+
+    card.style.transition =
+      "all .8s ease";
+
+    card.style.transform =
+      `translate(${index*3}px,${index*2}px)
+       rotate(${-4 + (index % 5)}deg)`;
+
     card.style.zIndex = index;
+
   });
+
 }
 
 function shuffleDeck(){
+
   stopTimer();
+
   playShuffleSound();
 
-  const cards = document.querySelectorAll(".card");
+  const cards =
+    document.querySelectorAll(".card");
 
   cards.forEach(card=>{
+
     card.classList.add("flipped");
 
-    const x = Math.random()*220 - 110;
-    const y = Math.random()*120 - 60;
-    const r = Math.random()*26 - 13;
+    const x =
+      Math.random()*220 - 110;
+
+    const y =
+      Math.random()*120 - 60;
+
+    const r =
+      Math.random()*26 - 13;
 
     card.style.opacity = "1";
-    card.style.transition = "all .7s ease";
+
+    card.style.transition =
+      "all .7s ease";
+
     card.style.transform =
       `translate(${x}px,${y}px)
        rotate(${r}deg)`;
 
-    card.style.zIndex = Math.floor(Math.random()*100);
+    card.style.zIndex =
+      Math.floor(Math.random()*100);
+
   });
 
   setTimeout(()=>{
-    cardsData.sort(()=>Math.random()-0.5);
+
+    cardsData.sort(
+      ()=>Math.random()-0.5
+    );
+
     createDeck();
+
   },700);
+
 }
 
 function randomCard(){
+
   stopTimer();
 
-  const cards = document.querySelectorAll(".card");
+  const cards =
+    document.querySelectorAll(".card");
 
   cards.forEach(card=>{
+
     card.style.opacity = ".25";
+
     card.classList.add("flipped");
+
   });
 
-  const random = Math.floor(Math.random()*cards.length);
-  const selected = cards[random];
+  const random =
+    Math.floor(Math.random()*cards.length);
+
+  const selected =
+    cards[random];
 
   selected.style.opacity = "1";
+
   selected.style.zIndex = 9999;
-  selected.style.transform = `translate(0px,-20px) rotate(0deg) scale(1.06)`;
+
+  selected.style.transform =
+    `translate(0px,-20px)
+     rotate(0deg)
+     scale(1.06)`;
+
 }
 
 function startTimer(duration){
-  let time = Number(duration) || 30;
+
+  let time =
+    Number(duration) || 30;
 
   timerBox.style.display = "block";
-  timerBox.textContent = "⏰ " + time;
+
+  timerBox.textContent =
+    "⏰ " + time;
+
   timerBox.classList.remove("alarm");
 
   clearInterval(timerInterval);
@@ -453,37 +825,64 @@ function startTimer(duration){
   playTickTackSound();
 
   tickInterval = setInterval(()=>{
+
     playTickTackSound();
+
   },1000);
 
   timerInterval = setInterval(()=>{
+
     time--;
-    timerBox.textContent = "⏰ " + time;
+
+    timerBox.textContent =
+      "⏰ " + time;
 
     if(time <= 0){
+
       clearInterval(timerInterval);
       clearInterval(tickInterval);
 
-      timerBox.textContent = "⏰ ¡Tiempo!";
+      timerBox.textContent =
+        "⏰ ¡Tiempo!";
+
       timerBox.classList.add("alarm");
 
       playAlarmSound();
 
       if(activeCard){
+
         activeCard.style.zIndex = 9999;
-        activeCard.style.transform = `translate(0px,-20px) rotate(0deg) scale(1.06)`;
+
+        activeCard.style.transform =
+          `translate(0px,-20px)
+           rotate(0deg)
+           scale(1.06)`;
+
       }
 
       setTimeout(()=>{
+
         timerBox.classList.remove("alarm");
+
       },2200);
+
     }
+
   },1000);
+
 }
 
-document.getElementById("shuffleBtn").addEventListener("click",shuffleDeck);
-document.getElementById("randomBtn").addEventListener("click",randomCard);
+document
+.getElementById("shuffleBtn")
+.addEventListener("click",shuffleDeck);
+
+document
+.getElementById("randomBtn")
+.addEventListener("click",randomCard);
 
 loadSheet();
 
 </script>
+
+</body>
+</html>
