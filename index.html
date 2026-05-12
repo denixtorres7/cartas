@@ -32,8 +32,13 @@ button{
 }
 
 .deck{
-  position:absolute;width:820px;height:450px;top:50%;left:50%;
-  transform:translate(-50%,-50%);
+  position:absolute;
+  width:820px;
+  height:450px;
+  left:50%;
+  top:58%;
+  transform:translate(-50%,-50%) scale(.55);
+  transform-origin:center center;
 }
 
 .card{
@@ -142,10 +147,12 @@ button{
   100%{transform:translateX(0);}
 }
 
-@media(max-width:900px){
-  .deck{transform:translate(-50%,-50%) scale(.72);}
-  .controls{flex-wrap:wrap;}
-  button{font-size:13px;padding:10px 14px;}
+@media (max-width:900px){
+  .deck{
+    left:50%;
+    top:58%;
+    transform:translate(-50%,-50%) scale(.35);
+  }
 }
 </style>
 
