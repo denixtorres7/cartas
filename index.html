@@ -1,24 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
 html,body{
+  margin:0;
   width:100%;
   height:100%;
-  margin:0;
-  padding:0;
   overflow:hidden;
-  background:#050008;
   font-family:Arial, Helvetica, sans-serif;
-}
-
-body{
-  position:relative;
 }
 
 .scene{
@@ -26,227 +18,335 @@ body{
   width:100%;
   height:100%;
   overflow:hidden;
-  background:#050008;
+  background:#fff;
+  background-image:var(--fondo);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
 }
 
+/* BOTONES */
 .controls{
   position:absolute;
-  top:20px;
-  left:20px;
-  z-index:9999;
+  top:3.2%;
+  left:2.3%;
+  z-index:30;
   display:flex;
-  gap:10px;
+  gap:14px;
 }
 
 button{
-  padding:12px 18px;
-  border:none;
-  border-radius:14px;
   background:#6d16d9;
   color:white;
-  font-size:15px;
-  font-weight:bold;
+  border:none;
+  border-radius:18px;
+  padding:16px 28px;
+  font-size:22px;
+  font-weight:900;
   cursor:pointer;
-  box-shadow:0 5px 12px rgba(0,0,0,.25);
+  box-shadow:0 8px 0 rgba(0,0,0,.18);
 }
 
+/* TIMER CON GIF */
 .timer{
   position:absolute;
-  top:20px;
-  right:24px;
-  color:white;
-  font-size:30px;
-  font-weight:bold;
-  z-index:9999;
-  display:none;
+  top:10.8%;
+  left:43.5%;
+  z-index:25;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#000;
+  font-size:34px;
+  font-weight:900;
 }
 
-.deck{
-  position:absolute;
-  width:820px;
-  height:450px;
-  left:50%;
-  top:55%;
-  transform:translate(-50%,-50%) scale(.85);
-  transform-origin:center center;
+.timer img{
+  width:44px;
+  height:44px;
+  object-fit:contain;
 }
 
-.card{
+.timer-label{
   position:absolute;
-  width:780px;
-  height:330px;
-  left:20px;
-  top:40px;
-  border-radius:26px;
+  top:-16px;
+  left:56px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+/* ESTRELLAS ARRIBA */
+.player-box{
+  position:absolute;
+  top:8.5%;
+  right:8.8%;
+  z-index:25;
+}
+
+.name-input{
+  width:210px;
+  height:28px;
+  border:3px solid #000;
+  border-radius:16px;
+  padding:0 18px;
+  font-size:16px;
+  font-weight:700;
+  background:white;
+}
+
+.top-stars{
+  margin-top:8px;
+  display:flex;
+  gap:6px;
+}
+
+.top-star{
+  font-size:34px;
+  color:#000;
   cursor:pointer;
-  transition:all .8s ease;
-  perspective:1200px;
+  line-height:1;
 }
 
-.card-inner{
+.top-star.active{
+  color:var(--color);
+}
+
+/* CARTA HORIZONTAL DE PREGUNTA */
+.question-card{
+  position:absolute;
+  left:20.5%;
+  top:42%;
+  width:38%;
+  height:28%;
+  background:#fffdf6;
+  border:4px solid #000;
+  border-radius:22px;
+  box-shadow:16px 18px 0 var(--color);
+  z-index:8;
+  transform:rotate(-1.5deg);
+  padding:54px 42px 30px;
+  box-sizing:border-box;
+}
+
+.label{
+  position:absolute;
+  top:-38px;
+  left:28px;
+  width:58%;
+  background:var(--color);
+  color:white;
+  border-radius:10px;
+  padding:12px 24px;
+  transform:rotate(-4deg);
+  box-sizing:border-box;
+}
+
+.label-title{
+  font-size:30px;
+  font-weight:900;
+  text-transform:uppercase;
+  line-height:.95;
+}
+
+.label-sub{
+  margin-top:4px;
+  font-size:15px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.question{
+  font-size:29px;
+  line-height:1.2;
+  font-weight:900;
+  color:#000;
+  max-width:78%;
+}
+
+.counter{
+  position:absolute;
+  right:42px;
+  bottom:34px;
+  font-size:31px;
+  font-style:italic;
+  color:#000;
+}
+
+/* NOTA DISCRETA */
+.instruction{
+  position:absolute;
+  left:22.3%;
+  top:77.8%;
+  width:36%;
+  min-height:34px;
+  border:2px dashed rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:6px 14px;
+  box-sizing:border-box;
+  font-size:13px;
+  font-weight:700;
+  color:rgba(0,0,0,.65);
+  background:rgba(255,255,255,.35);
+}
+
+/* ESPACIO PARA RESPUESTA */
+.answer-box{
+  position:absolute;
+  left:5.8%;
+  top:27%;
+  width:13%;
+  height:52%;
+  border:0;
+  background:transparent;
+  resize:none;
+  outline:none;
+  z-index:20;
+  font-size:18px;
+  line-height:1.35;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+/* CARTA VERTICAL FLIP */
+.vertical-card{
+  position:absolute;
+  left:61%;
+  top:25%;
+  width:18%;
+  height:52%;
+  z-index:18;
+  perspective:1200px;
+  cursor:pointer;
+}
+
+.vertical-inner{
   width:100%;
   height:100%;
   position:relative;
   transform-style:preserve-3d;
-  transition:transform .7s ease;
+  transition:transform .65s ease;
 }
 
-.card.flipped .card-inner{
+.vertical-card.open .vertical-inner{
   transform:rotateY(180deg);
 }
 
-.card-front,
-.card-back{
+.vertical-face{
   position:absolute;
   width:100%;
   height:100%;
-  border-radius:26px;
+  border-radius:22px;
   overflow:hidden;
   backface-visibility:hidden;
   box-sizing:border-box;
+  box-shadow:14px 18px 0 rgba(64,0,150,.65);
 }
 
-.card-front{
-  background:#f7f2e7;
-  padding:34px 50px;
-  box-shadow:14px 14px 0 var(--shadow);
-}
-
-.card-back{
-  background:var(--cardColor);
-  transform:rotateY(180deg);
+.vertical-cover{
+  background:var(--color);
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   color:white;
-  box-shadow:14px 14px 0 var(--shadow);
+  transform:rotate(8deg);
 }
 
-.card-back::before{
+.vertical-cover::before{
   content:"";
   position:absolute;
   width:140%;
   height:140%;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.05),
-      rgba(255,255,255,.05) 12px,
-      transparent 12px,
-      transparent 24px
-    );
+  background:repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,.07),
+    rgba(255,255,255,.07) 12px,
+    transparent 12px,
+    transparent 24px
+  );
   transform:rotate(8deg);
 }
 
-.back-drawing{
+.cover-title{
   position:relative;
   z-index:2;
-  width:140px;
-  height:140px;
-  object-fit:contain;
-  margin-bottom:18px;
-}
-
-.back-title{
-  position:relative;
-  z-index:2;
-  font-size:42px;
+  font-size:34px;
   font-weight:900;
-  letter-spacing:2px;
-}
-
-.back-sub{
-  position:relative;
-  z-index:2;
-  margin-top:12px;
-  font-size:18px;
-  opacity:.9;
-}
-
-.close-front-btn{
-  position:absolute;
-  top:18px;
-  right:18px;
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  background:#111;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
-  font-weight:900;
-  z-index:30;
-}
-
-.tape{
-  position:absolute;
-  width:100px;
-  height:30px;
-  background:var(--cardColor);
-  top:-10px;
-  left:60px;
-  transform:rotate(-12deg);
-}
-
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  margin-bottom:48px;
-}
-
-.label{
-  background:var(--cardColor);
-  color:white;
-  padding:14px 26px;
-  transform:rotate(-3deg);
-  min-width:310px;
-}
-
-.label-title{
-  font-size:28px;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.label-sub{
-  font-size:18px;
-  margin-top:4px;
-}
-
-.counter{
-  color:var(--cardColor);
-  font-size:22px;
-  font-weight:900;
-}
-
-.question{
-  font-size:42px;
-  line-height:1.08;
   text-align:center;
-  color:#050505;
-  font-weight:900;
-  max-width:640px;
-  margin:0 auto;
 }
 
-.instruction{
-  margin-top:18px;
-  text-align:center;
+.cover-sub{
+  position:relative;
+  z-index:2;
+  margin-top:8px;
   font-size:18px;
-  color:#555;
   font-style:italic;
 }
 
-.star{
+.vertical-front{
+  background:#fff;
+  transform:rotateY(180deg) rotate(8deg);
+}
+
+.vertical-front img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.close-card{
   position:absolute;
-  right:30px;
-  bottom:20px;
-  font-size:44px;
-  color:#111;
+  top:12px;
+  right:12px;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#000;
+  color:white;
+  font-size:25px;
+  font-weight:900;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+}
+
+.vertical-card.open .close-card{
+  display:flex;
+}
+
+/* PANEL DERECHO */
+.emergency-text{
+  position:absolute;
+  right:8.2%;
+  top:49%;
+  width:12%;
+  height:32%;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  align-items:center;
+  font-size:18px;
+  font-weight:900;
+  color:#000;
+}
+
+/* ANIMACIÓN SOLO CARTA VERTICAL */
+.shuffle{
+  animation:shuffleVertical .7s ease;
+}
+
+@keyframes shuffleVertical{
+  0%{transform:translate(0,0) rotate(8deg);}
+  20%{transform:translate(-35px,18px) rotate(-7deg);}
+  45%{transform:translate(28px,-22px) rotate(13deg);}
+  70%{transform:translate(-18px,12px) rotate(-4deg);}
+  100%{transform:translate(0,0) rotate(8deg);}
 }
 
 .alarm{
@@ -261,627 +361,398 @@ button{
   100%{transform:translateX(0);}
 }
 
-@media (max-width:900px){
-
-  .deck{
-    left:50%;
-    top:55%;
-    transform:
-      translate(-50%,-50%)
-      scale(.42);
-  }
-
-  .controls{
-    top:10px;
-    left:10px;
-    gap:6px;
-  }
-
+@media(max-width:900px){
   button{
-    font-size:11px;
-    padding:8px 10px;
+    font-size:13px;
+    padding:10px 16px;
+    border-radius:12px;
   }
 
   .timer{
-    font-size:20px;
-    top:14px;
-    right:14px;
+    font-size:22px;
   }
 
-}
+  .timer img{
+    width:30px;
+    height:30px;
+  }
 
+  .question{
+    font-size:20px;
+  }
+
+  .label-title{
+    font-size:20px;
+  }
+
+  .label-sub{
+    font-size:11px;
+  }
+
+  .top-star{
+    font-size:22px;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<div class="scene">
+<div class="scene" id="scene">
 
   <div class="controls">
     <button id="shuffleBtn">Barajar</button>
-    <button id="randomBtn">Carta aleatoria</button>
+    <button id="nextBtn">Siguiente</button>
   </div>
 
-  <div class="timer" id="timer">30</div>
+  <div class="timer" id="timer">
+    <img id="timerGif" src="">
+    <div>
+      <div class="timer-label">TIEMPO RESTANTE</div>
+      <span id="timeNumber">30</span>
+    </div>
+  </div>
 
-  <div class="deck" id="deck"></div>
+  <div class="player-box">
+    <input class="name-input" placeholder="tu nombre">
+    <div class="top-stars">
+      <span class="top-star">★</span>
+      <span class="top-star">★</span>
+      <span class="top-star">★</span>
+      <span class="top-star">★</span>
+      <span class="top-star">★</span>
+    </div>
+  </div>
+
+  <textarea class="answer-box" placeholder="Escribe aquí..."></textarea>
+
+  <div class="question-card" id="questionCard">
+    <div class="label">
+      <div class="label-title" id="cardTitle">Cargando...</div>
+      <div class="label-sub" id="cardSubtitle"></div>
+    </div>
+
+    <div class="question" id="questionText"></div>
+    <div class="counter" id="counter">1/1</div>
+  </div>
+
+  <div class="instruction" id="instructionText">
+    Recuerda: no hay respuestas correctas. Solo importa lo que tú sientes.
+  </div>
+
+  <div class="vertical-card" id="verticalCard">
+    <div class="close-card" id="closeCard">×</div>
+
+    <div class="vertical-inner">
+      <div class="vertical-face vertical-cover">
+        <div class="cover-title" id="coverTitle">CARTA</div>
+        <div class="cover-sub">Toca para revelar</div>
+      </div>
+
+      <div class="vertical-face vertical-front">
+        <img id="visualGraphic" src="">
+      </div>
+    </div>
+  </div>
+
+  <div class="emergency-text">
+    <div id="tool1">RESPIRAR</div>
+    <div id="tool2">AMIGO</div>
+    <div id="tool3">NOTAS</div>
+  </div>
 
 </div>
 
 <script>
-
-/*
-========================================================
-PON AQUI TU LINK CSV DE GOOGLE SHEETS
-========================================================
-*/
-
-const sheetURL =
-"https://docs.google.com/spreadsheets/d/1TNjFeeLHmZxSJTIzpYOpQTcaZj8-pSK59IkAL1aV6Xo/edit?usp=sharing";
-
-/*
-========================================================
-FIN LINK
-========================================================
-*/
+const sheetURL = "PEGA_AQUI_TU_LINK_CSV_DE_GOOGLE_SHEETS";
 
 let cardsData = [];
-
-const deck = document.getElementById("deck");
-const timerBox = document.getElementById("timer");
-
+let currentIndex = 0;
 let timerInterval;
 let tickInterval;
-let activeCard = null;
+let timeLeft = 30;
 
-function darkenColor(hex, percent){
+const scene = document.getElementById("scene");
+const verticalCard = document.getElementById("verticalCard");
+const questionCard = document.getElementById("questionCard");
+const timer = document.getElementById("timer");
 
-  if(!hex || !hex.startsWith("#")){
-    return "#43108f";
-  }
-
-  hex = hex.replace("#","");
-
-  let r = parseInt(hex.substring(0,2),16);
-  let g = parseInt(hex.substring(2,4),16);
-  let b = parseInt(hex.substring(4,6),16);
-
-  r = Math.floor(r * (100 - percent) / 100);
-  g = Math.floor(g * (100 - percent) / 100);
-  b = Math.floor(b * (100 - percent) / 100);
-
-  return `rgb(${r},${g},${b})`;
-
-}
+const cardTitle = document.getElementById("cardTitle");
+const cardSubtitle = document.getElementById("cardSubtitle");
+const questionText = document.getElementById("questionText");
+const counter = document.getElementById("counter");
+const instructionText = document.getElementById("instructionText");
+const timeNumber = document.getElementById("timeNumber");
+const timerGif = document.getElementById("timerGif");
+const visualGraphic = document.getElementById("visualGraphic");
+const coverTitle = document.getElementById("coverTitle");
 
 function parseCSV(text){
-
-  const rows =
-    text.trim().split(/\r?\n/);
-
-  const headers =
-    rows[0].split(",").map(h => h.trim());
+  const rows = text.trim().split(/\r?\n/);
+  const headers = rows[0].split(",").map(h => h.trim());
 
   return rows.slice(1).map(row => {
-
-    const values =
-      row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-
+    const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
     const item = {};
 
-    headers.forEach((header, index) => {
-
-      item[header] =
-        values[index]
-        ? values[index]
-            .replace(/^"|"$/g, "")
-            .trim()
+    headers.forEach((header,index)=>{
+      item[header] = values[index]
+        ? values[index].replace(/^"|"$/g,"").trim()
         : "";
-
     });
 
     return item;
-
   });
-
 }
 
 function loadSheet(){
-
   fetch(sheetURL)
     .then(response => response.text())
     .then(csv => {
-
       cardsData = parseCSV(csv);
-
-      createDeck();
-
+      currentIndex = 0;
+      renderCard();
     })
-    .catch(error => {
-
-      console.log(error);
-
-      deck.innerHTML =
-        "<p style='color:white;font-size:24px;'>No se pudo cargar Google Sheets.</p>";
-
+    .catch(() => {
+      questionText.textContent = "No se pudo cargar Google Sheets.";
     });
+}
 
+function renderCard(){
+  if(!cardsData.length) return;
+
+  const card = cardsData[currentIndex];
+  const color = card.color || "#8A4FF5";
+
+  scene.style.setProperty("--color", color);
+
+  scene.style.setProperty(
+    "--fondo",
+    card.fondo ? `url("${card.fondo}")` : "none"
+  );
+
+  cardTitle.textContent = card.titulo || "SIN TÍTULO";
+  cardSubtitle.textContent = card.subtitulo || "";
+  coverTitle.textContent = card.titulo || "CARTA";
+  questionText.textContent = card.pregunta || "";
+  counter.textContent = `${currentIndex + 1}/${cardsData.length}`;
+
+  instructionText.textContent =
+    card.instruccion ||
+    "Recuerda: no hay respuestas correctas. Solo importa lo que tú sientes.";
+
+  visualGraphic.src = card.grafica || "";
+  timerGif.src = card.timergif || "";
+
+  document.getElementById("tool1").textContent = card.herramienta1 || "RESPIRAR";
+  document.getElementById("tool2").textContent = card.herramienta2 || "AMIGO";
+  document.getElementById("tool3").textContent = card.herramienta3 || "NOTAS";
+
+  timeLeft = Number(card.tiempo) || 30;
+  timeNumber.textContent = timeLeft;
+
+  document.querySelector(".answer-box").value = "";
+
+  verticalCard.classList.remove("open");
+
+  stopTimer();
 }
 
 function playShuffleSound(){
-
   const ctx = new AudioContext();
 
-  for(let i = 0; i < 28; i++){
-
-    const bufferSize =
-      ctx.sampleRate * 0.03;
-
-    const buffer =
-      ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-
-    const data =
-      buffer.getChannelData(0);
+  for(let i = 0; i < 24; i++){
+    const bufferSize = ctx.sampleRate * 0.03;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
 
     for(let j = 0; j < bufferSize; j++){
-
-      data[j] =
-        (Math.random() * 2 - 1) *
-        Math.exp(-j / (bufferSize / 6));
-
+      data[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufferSize / 6));
     }
 
-    const noise =
-      ctx.createBufferSource();
-
+    const noise = ctx.createBufferSource();
     noise.buffer = buffer;
 
-    const filter =
-      ctx.createBiquadFilter();
-
+    const filter = ctx.createBiquadFilter();
     filter.type = "bandpass";
+    filter.frequency.value = 1800 + Math.random() * 1200;
 
-    filter.frequency.value =
-      1800 + Math.random() * 1200;
-
-    const gain =
-      ctx.createGain();
-
+    const gain = ctx.createGain();
     gain.gain.value = 0.06;
 
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(ctx.destination);
 
-    const time =
-      ctx.currentTime + i * 0.025;
-
+    const time = ctx.currentTime + i * 0.025;
     noise.start(time);
     noise.stop(time + 0.03);
-
   }
-
 }
 
 function playTickTackSound(){
-
   const ctx = new AudioContext();
 
   function tick(freq, delay){
-
-    const osc =
-      ctx.createOscillator();
-
-    const gain =
-      ctx.createGain();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
     osc.type = "square";
     osc.frequency.value = freq;
 
-    gain.gain.setValueAtTime(
-      0.055,
-      ctx.currentTime + delay
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      0.001,
-      ctx.currentTime + delay + 0.04
-    );
+    gain.gain.setValueAtTime(0.045, ctx.currentTime + delay);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.04);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(ctx.currentTime + delay);
     osc.stop(ctx.currentTime + delay + 0.04);
-
   }
 
   tick(900,0);
   tick(620,.45);
-
 }
 
 function playAlarmSound(){
-
   const ctx = new AudioContext();
 
   for(let i = 0; i < 12; i++){
-
-    const bell1 =
-      ctx.createOscillator();
-
-    const bell2 =
-      ctx.createOscillator();
-
-    const gain =
-      ctx.createGain();
+    const bell1 = ctx.createOscillator();
+    const bell2 = ctx.createOscillator();
+    const gain = ctx.createGain();
 
     bell1.type = "triangle";
     bell2.type = "sine";
 
-    bell1.frequency.value =
-      i % 2 === 0 ? 1550 : 1250;
+    bell1.frequency.value = i % 2 === 0 ? 1550 : 1250;
+    bell2.frequency.value = i % 2 === 0 ? 1585 : 1285;
 
-    bell2.frequency.value =
-      i % 2 === 0 ? 1585 : 1285;
-
-    gain.gain.setValueAtTime(
-      0.32,
-      ctx.currentTime + i * 0.16
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      0.001,
-      ctx.currentTime + i * 0.16 + 0.12
-    );
+    gain.gain.setValueAtTime(0.32, ctx.currentTime + i * 0.16);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.16 + 0.12);
 
     bell1.connect(gain);
     bell2.connect(gain);
-
     gain.connect(ctx.destination);
 
-    const start =
-      ctx.currentTime + i * 0.16;
+    const start = ctx.currentTime + i * 0.16;
 
     bell1.start(start);
     bell2.start(start);
-
     bell1.stop(start + 0.13);
     bell2.stop(start + 0.13);
-
   }
 
   if(navigator.vibrate){
-
-    navigator.vibrate([
-      120,80,120,80,120,80,250
-    ]);
-
+    navigator.vibrate([120,80,120,80,120,80,250]);
   }
-
 }
 
-function stopTimer(){
-
-  clearInterval(timerInterval);
-  clearInterval(tickInterval);
-
-  timerBox.style.display = "none";
-  timerBox.classList.remove("alarm");
-
-}
-
-function createDeck(){
-
-  deck.innerHTML = "";
-
-  cardsData.forEach((cardData,index)=>{
-
-    const mainColor =
-      cardData.color || "#6d16d9";
-
-    const shadowColor =
-      cardData.sombra ||
-      darkenColor(mainColor, 35);
-
-    const card =
-      document.createElement("div");
-
-    card.className = "card flipped";
-
-    card.style.setProperty(
-      "--cardColor",
-      mainColor
-    );
-
-    card.style.setProperty(
-      "--shadow",
-      shadowColor
-    );
-
-    card.innerHTML = `
-
-      <div class="card-inner">
-
-        <div class="card-front">
-
-          <div class="close-front-btn">
-            ×
-          </div>
-
-          <div class="tape"></div>
-
-          <div class="header">
-
-            <div class="label">
-
-              <div class="label-title">
-                ${cardData.titulo || "SIN TITULO"}
-              </div>
-
-              <div class="label-sub">
-                ${cardData.subtitulo || ""}
-              </div>
-
-            </div>
-
-            <div class="counter">
-              ${index+1}/${cardsData.length}
-            </div>
-
-          </div>
-
-          <div class="question">
-            ${cardData.pregunta || ""}
-          </div>
-
-          <div class="instruction">
-            ${cardData.instruccion || ""}
-          </div>
-
-          <div class="star">
-            ✶
-          </div>
-
-        </div>
-
-        <div class="card-back">
-
-          <img
-            class="back-drawing"
-            src="${cardData.imagen || ""}"
-          >
-
-          <div class="back-title">
-            ${cardData.titulo || "CARTA"}
-          </div>
-
-          <div class="back-sub">
-            Toca para revelar
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-    card.addEventListener("click",()=>{
-
-      const isHidden =
-        card.classList.contains("flipped");
-
-      card.classList.toggle("flipped");
-
-      if(navigator.vibrate){
-
-        navigator.vibrate(40);
-
-      }
-
-      if(isHidden){
-
-        activeCard = card;
-
-        startTimer(
-          cardData.tiempo || 30
-        );
-
-      }else{
-
-        stopTimer();
-
-        activeCard = null;
-
-      }
-
-    });
-
-    deck.appendChild(card);
-
-  });
-
-  stackCards();
-
-}
-
-function stackCards(){
-
-  const cards =
-    document.querySelectorAll(".card");
-
-  cards.forEach((card,index)=>{
-
-    card.style.opacity = "1";
-
-    card.style.transition =
-      "all .8s ease";
-
-    card.style.transform =
-      `translate(${index*3}px,${index*2}px)
-       rotate(${-4 + (index % 5)}deg)`;
-
-    card.style.zIndex = index;
-
-  });
-
-}
-
-function shuffleDeck(){
-
+function startTimer(){
   stopTimer();
-
-  playShuffleSound();
-
-  const cards =
-    document.querySelectorAll(".card");
-
-  cards.forEach(card=>{
-
-    card.classList.add("flipped");
-
-    const x =
-      Math.random()*220 - 110;
-
-    const y =
-      Math.random()*120 - 60;
-
-    const r =
-      Math.random()*26 - 13;
-
-    card.style.opacity = "1";
-
-    card.style.transition =
-      "all .7s ease";
-
-    card.style.transform =
-      `translate(${x}px,${y}px)
-       rotate(${r}deg)`;
-
-    card.style.zIndex =
-      Math.floor(Math.random()*100);
-
-  });
-
-  setTimeout(()=>{
-
-    cardsData.sort(
-      ()=>Math.random()-0.5
-    );
-
-    createDeck();
-
-  },700);
-
-}
-
-function randomCard(){
-
-  stopTimer();
-
-  const cards =
-    document.querySelectorAll(".card");
-
-  cards.forEach(card=>{
-
-    card.style.opacity = ".25";
-
-    card.classList.add("flipped");
-
-  });
-
-  const random =
-    Math.floor(Math.random()*cards.length);
-
-  const selected =
-    cards[random];
-
-  selected.style.opacity = "1";
-
-  selected.style.zIndex = 9999;
-
-  selected.style.transform =
-    `translate(0px,-20px)
-     rotate(0deg)
-     scale(1.06)`;
-
-}
-
-function startTimer(duration){
-
-  let time =
-    Number(duration) || 30;
-
-  timerBox.style.display = "block";
-
-  timerBox.textContent =
-    "⏰ " + time;
-
-  timerBox.classList.remove("alarm");
-
-  clearInterval(timerInterval);
-  clearInterval(tickInterval);
-
-  playTickTackSound();
 
   tickInterval = setInterval(()=>{
-
     playTickTackSound();
-
   },1000);
 
   timerInterval = setInterval(()=>{
+    timeLeft--;
+    timeNumber.textContent = timeLeft;
 
-    time--;
-
-    timerBox.textContent =
-      "⏰ " + time;
-
-    if(time <= 0){
-
-      clearInterval(timerInterval);
-      clearInterval(tickInterval);
-
-      timerBox.textContent =
-        "⏰ ¡Tiempo!";
-
-      timerBox.classList.add("alarm");
-
+    if(timeLeft <= 0){
+      stopTimer();
+      timeNumber.textContent = "0";
+      timer.classList.add("alarm");
       playAlarmSound();
 
-      if(activeCard){
-
-        activeCard.style.zIndex = 9999;
-
-        activeCard.style.transform =
-          `translate(0px,-20px)
-           rotate(0deg)
-           scale(1.06)`;
-
-      }
-
       setTimeout(()=>{
-
-        timerBox.classList.remove("alarm");
-
+        timer.classList.remove("alarm");
       },2200);
-
     }
-
   },1000);
-
 }
 
-document
-.getElementById("shuffleBtn")
-.addEventListener("click",shuffleDeck);
+function stopTimer(){
+  clearInterval(timerInterval);
+  clearInterval(tickInterval);
+}
 
-document
-.getElementById("randomBtn")
-.addEventListener("click",randomCard);
+function revealVerticalCard(){
+  verticalCard.classList.add("open");
+  startTimer();
+
+  if(navigator.vibrate){
+    navigator.vibrate(40);
+  }
+}
+
+function closeVerticalCard(){
+  verticalCard.classList.remove("open");
+  stopTimer();
+}
+
+function nextCard(){
+  currentIndex++;
+
+  if(currentIndex >= cardsData.length){
+    currentIndex = 0;
+  }
+
+  verticalCard.classList.remove("open");
+  verticalCard.classList.add("shuffle");
+
+  setTimeout(()=>{
+    verticalCard.classList.remove("shuffle");
+    renderCard();
+  },450);
+}
+
+function shuffleCards(){
+  playShuffleSound();
+
+  cardsData.sort(()=>Math.random() - 0.5);
+  currentIndex = 0;
+
+  verticalCard.classList.remove("open");
+  verticalCard.classList.add("shuffle");
+
+  setTimeout(()=>{
+    verticalCard.classList.remove("shuffle");
+    renderCard();
+  },700);
+}
+
+/* estrellas de arriba */
+document.addEventListener("click",(e)=>{
+  if(e.target.classList.contains("top-star")){
+    const stars = document.querySelectorAll(".top-star");
+    const index = [...stars].indexOf(e.target);
+
+    stars.forEach((star,i)=>{
+      if(i <= index){
+        star.classList.add("active");
+      }else{
+        star.classList.remove("active");
+      }
+    });
+  }
+});
+
+verticalCard.addEventListener("click",(e)=>{
+  if(e.target.id === "closeCard"){
+    closeVerticalCard();
+    return;
+  }
+
+  if(!verticalCard.classList.contains("open")){
+    revealVerticalCard();
+  }
+});
+
+document.getElementById("shuffleBtn").addEventListener("click",shuffleCards);
+document.getElementById("nextBtn").addEventListener("click",nextCard);
 
 loadSheet();
-
 </script>
 
 </body>
