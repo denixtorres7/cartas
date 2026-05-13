@@ -424,8 +424,6 @@ button{
     </div>
   </div>
 
-  <textarea class="answer-box" placeholder="Escribe aquí..."></textarea>
-
   <div class="question-card" id="questionCard">
     <div class="label">
       <div class="label-title" id="cardTitle">Cargando...</div>
@@ -435,6 +433,7 @@ button{
     <div class="question" id="questionText"></div>
     <div class="counter" id="counter">1/1</div>
   </div>
+  <textarea class="answer-box" placeholder="Escribe aquí..."></textarea>
 
   <div class="instruction" id="instructionText">
     Recuerda: no hay respuestas correctas. Solo importa lo que tú sientes.
@@ -453,12 +452,6 @@ button{
         <img id="visualGraphic" src="">
       </div>
     </div>
-  </div>
-
-  <div class="emergency-text">
-    <div id="tool1">RESPIRAR</div>
-    <div id="tool2">AMIGO</div>
-    <div id="tool3">NOTAS</div>
   </div>
 
 </div>
@@ -543,10 +536,6 @@ function renderCard(){
 
   visualGraphic.src = card.grafica || "";
   timerGif.src = card.timergif || "";
-
-  document.getElementById("tool1").textContent = card.herramienta1 || "RESPIRAR";
-  document.getElementById("tool2").textContent = card.herramienta2 || "AMIGO";
-  document.getElementById("tool3").textContent = card.herramienta3 || "NOTAS";
 
   timeLeft = Number(card.tiempo) || 30;
   timeNumber.textContent = timeLeft;
