@@ -396,480 +396,324 @@ class="vertical-face vertical-front">
 const sheetURL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqZdZ17KRyJDc6ybE8eZKia2XuQ4a5Tba6WzrhFDJ4ejSgZBDU4WdSH54pWkY1BGgZNe79S_77zMiS/pub?gid=343832896&single=true&output=csv";
 
-let cardsData=[];
-let currentIndex=0;
-let filledStars=0;
+let cardsData = [];
+let currentIndex = 0;
+let filledStars = 0;
+let hasRevealedOnce = false;
 
 let timerInterval;
 let tickInterval;
-let timeLeft=30;
+let timeLeft = 30;
+let audioCtx = null;
 
-const scene=document.getElementById("scene");
-const verticalCard=document.getElementById("verticalCard");
+const scene = document.getElementById("scene");
+const verticalCard = document.getElementById("verticalCard");
+const cardTitle = document.getElementById("cardTitle");
+const questionText = document.getElementById("questionText");
+const counter = document.getElementById("counter");
+const instructionText = document.getElementById("instructionText");
+const visualGraphic = document.getElementById("visualGraphic");
+const answerBox = document.getElementById("answerBox");
+const timeNumber = document.getElementById("timeNumber");
+const verticalCover = document.querySelector(".vertical-cover");
+const timerGif = document.getElementById("timerGif");
 
-const cardTitle=document.getElementById("cardTitle");
-const questionText=document.getElementById("questionText");
-const counter=document.getElementById("counter");
-const instructionText=document.getElementById("instructionText");
-const visualGraphic=document.getElementById("visualGraphic");
-const answerBox=document.getElementById("answerBox");
-
-const timeNumber=
-document.getElementById("timeNumber");
-
-const timerGif=document.getElementById("timerGif");
-
-let audioCtx=null;
-let timerSoundEnabled=true;
-let revealedIndex=null;
-
-function clean(t){
-
-return (t||"")
-.replace(/[”“]/g,'"')
-.replace(/^\s+|\s+$/g,'')
-.replace(/^"+|"+$/g,'');
-
+function clean(t) {
+  return (t || "")
+    .replace(/[”“]/g, '"')
+    .replace(/^\s+|\s+$/g, '')
+    .replace(/^"+|"+$/g, '');
 }
 
-
-function parseCSV(text){
-
-const rows=[];
-let row=[];
-let cell="";
-let inside=false;
-
-for(let i=0;i<text.length;i++){
-
-const c=text[i];
-
-if(c=='"'){
-inside=!inside;
-continue;
+function normalizeKey(t) {
+  return clean(t)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "_");
 }
 
-if(c=="," && !inside){
+function normalizeImageURL(url) {
+  url = clean(url);
+  if (!url) return "";
 
-row.push(cell);
-cell="";
-continue;
+  // Convierte enlaces compartidos de Google Drive a enlaces más amigables para <img> y background-image.
+  // Ejemplo: https://drive.google.com/file/d/ID/view?usp=sharing
+  const driveFile = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveFile && driveFile[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveFile[1]}`;
+  }
 
+  // Ejemplo: https://drive.google.com/open?id=ID o ?id=ID
+  const driveId = url.match(/[?&]id=([^&]+)/);
+  if (url.includes("drive.google.com") && driveId && driveId[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveId[1]}`;
+  }
+
+  return url;
 }
 
-if(
-(c=="\n"||c=="\r")
-&& !inside
-){
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inside = false;
 
-if(
-cell.length||
-row.length
-){
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
 
-row.push(cell);
+    if (c === '"' && inside && next === '"') {
+      cell += '"';
+      i++;
+      continue;
+    }
 
-rows.push(row);
+    if (c === '"') {
+      inside = !inside;
+      continue;
+    }
 
-row=[];
+    if (c === "," && !inside) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
 
-cell="";
+    if ((c === "\n" || c === "\r") && !inside) {
+      if (c === "\r" && next === "\n") i++;
+      if (cell.length || row.length) {
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+      }
+      continue;
+    }
 
+    cell += c;
+  }
+
+  if (cell.length || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  if (!rows.length) return [];
+
+  const headers = rows[0].map(x => normalizeKey(x));
+
+  return rows.slice(1)
+    .map(r => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = clean(r[i]);
+      });
+      return obj;
+    })
+    .filter(x => x.pregunta || x.grafica_tiro || x.grafica_retiro);
 }
 
-continue;
+function loadSheet() {
+  fetch(sheetURL + "&nocache=" + Date.now())
+    .then(r => r.text())
+    .then(csv => {
+      cardsData = parseCSV(csv);
+      console.log("Cartas cargadas:", cardsData);
 
+      if (cardsData.length === 0) {
+        questionText.innerHTML = "No carga CSV";
+        return;
+      }
+
+      currentIndex = 0;
+      prepareCard(false);
+    })
+    .catch(e => {
+      console.log(e);
+      questionText.innerHTML = "Error Sheet";
+    });
 }
 
-cell+=c;
-
+function getCard() {
+  return cardsData[currentIndex];
 }
 
-if(cell.length||row.length){
+function prepareCard(keepPreviousQuestion = true) {
+  const card = getCard();
+  if (!card) return;
 
-row.push(cell);
+  scene.style.setProperty("--color", card.color || "#8A4FF5");
+  scene.style.setProperty("--shadow", card.sombra || "#43108f");
 
-rows.push(row);
+  const retiro = normalizeImageURL(card.grafica_retiro);
+  const tiro = normalizeImageURL(card.grafica_tiro);
+  const fondo = normalizeImageURL(card.fondo);
+  const gif = normalizeImageURL(card.timer_gif || card.gif_timer || card.gif || "");
 
+  if (fondo) {
+    scene.style.setProperty("--fondo", `url("${fondo}")`);
+  }
+
+  if (gif) {
+    timerGif.src = gif;
+  }
+
+  // La carta vertical SIEMPRE inicia tapada con grafica_retiro.
+  verticalCard.classList.remove("open");
+  verticalCover.style.backgroundImage = retiro ? `url("${retiro}")` : "none";
+  visualGraphic.removeAttribute("src");
+  if (tiro) visualGraphic.src = tiro;
+
+  visualGraphic.onerror = function() {
+    console.warn("No cargó grafica_tiro:", tiro);
+  };
+
+  timeLeft = Number(card.tiempo) || 30;
+  timeNumber.innerHTML = timeLeft;
+  answerBox.value = "";
+  stopTimer();
+
+  // IMPORTANTE: al preparar/siguiente NO se cambia la pregunta.
+  // Solo se muestra mensaje inicial antes de la primera revelación.
+  if (!hasRevealedOnce && !keepPreviousQuestion) {
+    cardTitle.innerHTML = "CARTA";
+    questionText.innerHTML = "Toca para revelar";
+    instructionText.innerHTML = "";
+    counter.innerHTML = (currentIndex + 1) + "/" + cardsData.length;
+  }
 }
 
-const headers=
-rows[0]
-.map(x=>clean(x));
+function revealCurrentCard() {
+  const card = getCard();
+  if (!card) return;
 
-return rows
-.slice(1)
+  // La pregunta horizontal se actualiza ÚNICAMENTE aquí, al voltear/abrir.
+  cardTitle.innerHTML = card.titulo || "SIN TITULO";
+  questionText.innerHTML = card.pregunta || "";
+  instructionText.innerHTML = card.instruccion || "";
+  counter.innerHTML = (currentIndex + 1) + "/" + cardsData.length;
+  hasRevealedOnce = true;
+}
 
-.map(r=>{
+function nextCard() {
+  if (!cardsData.length) return;
 
-let obj={};
+  currentIndex++;
 
-headers.forEach(
-(h,i)=>{
+  if (currentIndex >= cardsData.length) {
+    currentIndex = 0;
+  }
 
-obj[h]=clean(
-r[i]
-);
+  // Siguiente prepara la nueva carta tapada, pero NO cambia la pregunta todavía.
+  prepareCard(true);
+}
 
+function shuffleCards() {
+  if (!cardsData.length) return;
+
+  cardsData.sort(() => Math.random() - 0.5);
+  currentIndex = 0;
+
+  verticalCard.classList.add("shuffle");
+
+  setTimeout(() => {
+    verticalCard.classList.remove("shuffle");
+    // Barajar también deja la carta tapada y NO cambia la pregunta hasta revelar.
+    prepareCard(true);
+  }, 700);
+}
+
+function ensureAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+}
+
+function beep(freq = 880, duration = 0.045, volume = 0.045) {
+  if (!audioCtx) return;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.frequency.value = freq;
+  osc.type = "sine";
+  gain.gain.value = volume;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function startTickSound() {
+  clearInterval(tickInterval);
+  beep(760, 0.035, 0.035);
+  tickInterval = setInterval(() => {
+    beep(760, 0.035, 0.035);
+  }, 1000);
+}
+
+function alarmSound() {
+  beep(520, 0.08, 0.06);
+  setTimeout(() => beep(420, 0.08, 0.06), 130);
+  setTimeout(() => beep(520, 0.08, 0.06), 260);
+}
+
+function startTimer() {
+  stopTimer();
+  ensureAudio();
+  startTickSound();
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timeNumber.innerHTML = timeLeft;
+
+    if (timeLeft <= 0) {
+      stopTimer();
+      timeNumber.innerHTML = 0;
+      alarmSound();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  clearInterval(tickInterval);
+}
+
+verticalCard.addEventListener("click", () => {
+  if (!cardsData.length) return;
+
+  const willOpen = !verticalCard.classList.contains("open");
+  verticalCard.classList.toggle("open");
+
+  if (willOpen) {
+    revealCurrentCard();
+    startTimer();
+  } else {
+    stopTimer();
+  }
 });
 
-return obj;
-
-})
-
-.filter(
-x=>x.pregunta
-);
-
-}
-
-
-function loadSheet(){
-
-fetch(
-sheetURL+
-"&nocache="+
-Date.now()
-)
-
-.then(r=>r.text())
-
-.then(csv=>{
-
-console.log(csv);
-
-cardsData=
-parseCSV(csv);
-
-console.log(
-cardsData
-);
-
-if(
-cardsData.length==0
-){
-
-questionText.innerHTML=
-"No carga CSV";
-
-return;
-
-}
-
-renderCard();
-
-})
-
-.catch(e=>{
-
-console.log(e);
-
-questionText.innerHTML=
-"Error Sheet";
-
-})
-
-}
-
-
-function renderCard(){
-
-const card=
-cardsData[currentIndex];
-
-if(!card)return;
-
-
-/* colores */
-
-scene.style.setProperty(
-"--color",
-card.color||
-"#8A4FF5"
-);
-
-scene.style.setProperty(
-"--shadow",
-card.sombra||
-"#43108f"
-);
-
-
-/* contador */
-
-counter.innerHTML=
-(currentIndex+1)+
-"/"+
-cardsData.length;
-
-
-/* frente carta: grafica_tiro */
-
-setImageSafe(
-visualGraphic,
-card.grafica_tiro
-);
-
-
-/* reverso carta: grafica_retiro */
-
-setBackgroundSafe(
-document.querySelector(".vertical-cover"),
-card.grafica_retiro
-);
-
-
-/* fondo general, si existe en la hoja */
-
-if(card.fondo){
-
-setBackgroundSafe(
-scene,
-card.fondo
-);
-
-}
-
-
-/* gif del timer, si existe en la hoja */
-
-if(card.timer_gif||card.gif_timer){
-
-setImageSafe(
-timerGif,
-card.timer_gif||card.gif_timer
-);
-
-}
-
-
-/* timer */
-
-timeLeft=
-Number(
-card.tiempo
-)||30;
-
-timeNumber.innerHTML=
-timeLeft;
-
-
-answerBox.value="";
-
-verticalCard.classList.remove(
-"open"
-);
-
-stopTimer();
-
-/*
-IMPORTANTE:
-Siguiente solo prepara la carta tapada.
-La pregunta horizontal NO cambia aquí.
-Solo se actualiza cuando la carta se voltea.
-*/
-clearHorizontalQuestion();
-
-}
-
-
-
-function nextCard(){
-
-currentIndex++;
-
-if(
-currentIndex>=
-cardsData.length
-){
-
-currentIndex=0;
-
-}
-
-renderCard();
-
-}
-
-
-
-function shuffleCards(){
-
-cardsData.sort(
-()=>Math.random()-.5
-);
-
-currentIndex=0;
-
-verticalCard
-.classList
-.add(
-"shuffle"
-);
-
-setTimeout(()=>{
-
-verticalCard
-.classList
-.remove(
-"shuffle"
-);
-
-renderCard();
-
-},700);
-
-}
-
-
-
-function startTimer(){
-
-stopTimer();
-
-unlockAudio();
-playTick();
-
-timerInterval=
-setInterval(()=>{
-
-timeLeft--;
-
-timeNumber.innerHTML=
-timeLeft;
-
-if(timeLeft>0){
-
-playTick();
-
-}
-
-if(timeLeft<=0){
-
-stopTimer();
-
-timeNumber.innerHTML=
-0;
-
-playAlarm();
-
-}
-
-},1000);
-
-}
-
-
-function stopTimer(){
-
-clearInterval(
-timerInterval
-);
-
-clearInterval(
-tickInterval
-);
-
-}
-
-
-verticalCard
-.addEventListener(
-"click",
-()=>{
-
-unlockAudio();
-
-if(
-verticalCard
-.classList
-.contains(
-"open"
-)
-){
-
-verticalCard
-.classList
-.remove(
-"open"
-);
-
-stopTimer();
-
-return;
-
-}
-
-verticalCard
-.classList
-.add(
-"open"
-);
-
-/*
-La pregunta cambia únicamente aquí:
-cuando la carta vertical pasa de grafica_retiro a grafica_tiro.
-*/
-revealHorizontalQuestion();
-
-startTimer();
-
-}
-);
-
-
-document
-.getElementById(
-"shuffleBtn"
-)
-
-.onclick=
-shuffleCards;
-
-
-document
-.getElementById(
-"nextBtn"
-)
-
-.onclick=
-nextCard;
-
-
-
-answerBox
-.addEventListener(
-"keydown",
-e=>{
-
-if(
-e.key=="Enter"
-){
-
-e.preventDefault();
-
-if(
-filledStars<6
-){
-
-document
-.querySelectorAll(
-".top-star"
-)
-
-[filledStars]
-
-.innerHTML=
-"★";
-
-filledStars++;
-
-}
-
-}
-
-}
-);
+document.getElementById("shuffleBtn").onclick = shuffleCards;
+document.getElementById("nextBtn").onclick = nextCard;
+
+answerBox.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+
+    if (filledStars < 6) {
+      document.querySelectorAll(".top-star")[filledStars].innerHTML = "★";
+      document.querySelectorAll(".top-star")[filledStars].classList.add("filled");
+      filledStars++;
+    }
+  }
+});
 
 loadSheet();
 
