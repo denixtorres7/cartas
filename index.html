@@ -394,221 +394,166 @@ class="vertical-face vertical-front">
 </div>
 
 <script>
-
-const sheetURL=
+const sheetURL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqZdZ17KRyJDc6ybE8eZKia2XuQ4a5Tba6WzrhFDJ4ejSgZBDU4WdSH54pWkY1BGgZNe79S_77zMiS/pub?gid=343832896&single=true&output=csv";
 
-let cardsData=[];
-let currentIndex=0;
-let filledStars=0;
+let cardsData = [];
+let currentIndex = 0;
+let filledStars = 0;
 
-const scene=document.getElementById("scene");
-const cardTitle=document.getElementById("cardTitle");
-const questionText=document.getElementById("questionText");
-const instructionText=document.getElementById("instructionText");
-const counter=document.getElementById("counter");
-const visualGraphic=document.getElementById("visualGraphic");
-const verticalCard=document.getElementById("verticalCard");
+const scene = document.getElementById("scene");
+const cardTitle = document.getElementById("cardTitle");
+const questionText = document.getElementById("questionText");
+const instructionText = document.getElementById("instructionText");
+const counter = document.getElementById("counter");
+const visualGraphic = document.getElementById("visualGraphic");
+const verticalCard = document.getElementById("verticalCard");
+const answerBox = document.getElementById("answerBox");
 
 function clean(v){
-
-return(v||"")
-.replace(/[“”]/g,'"')
-.trim()
-
+  return (v || "")
+    .replace(/[“”]/g, '"')
+    .replace(/^"|"$/g, "")
+    .trim();
 }
 
 function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quote = false;
 
-const rows=
-text.trim()
-.split(/\r?\n/);
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    const n = text[i + 1];
 
-const headers=
-rows[0]
-.split(",")
-.map(h=>clean(h));
+    if(c === '"' && quote && n === '"'){
+      cell += '"';
+      i++;
+    }else if(c === '"'){
+      quote = !quote;
+    }else if(c === "," && !quote){
+      row.push(cell);
+      cell = "";
+    }else if((c === "\n" || c === "\r") && !quote){
+      if(cell || row.length){
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+      }
+    }else{
+      cell += c;
+    }
+  }
 
-return rows
-.slice(1)
-.map(row=>{
+  if(cell || row.length){
+    row.push(cell);
+    rows.push(row);
+  }
 
-const values=
-row.match(
-/(".*?"|[^",]+)(?=\s*,|\s*$)/g
-)||[];
+  const headers = rows[0].map(h => clean(h));
 
-let item={};
-
-headers.forEach((h,i)=>{
-
-item[h]=
-clean(values[i])
-.replace(/^"|"$/g,"");
-
-});
-
-return item;
-
-})
-
-.filter(
-x=>x.pregunta
-);
-
+  return rows.slice(1).map(r => {
+    const item = {};
+    headers.forEach((h,i)=>{
+      item[h] = clean(r[i]);
+    });
+    return item;
+  }).filter(x => x.pregunta);
 }
 
 function loadSheet(){
-
-fetch(sheetURL)
-
-.then(r=>r.text())
-
-.then(csv=>{
-
-cardsData=parseCSV(csv);
-
-renderCard();
-
-})
-
+  fetch(sheetURL + "&cache=" + Date.now())
+    .then(r => r.text())
+    .then(csv => {
+      cardsData = parseCSV(csv);
+      currentIndex = 0;
+      renderCard();
+    })
+    .catch(error => {
+      console.error(error);
+      cardTitle.textContent = "ERROR";
+      questionText.textContent = "No se pudo cargar Google Sheets.";
+    });
 }
 
 function renderCard(){
+  if(!cardsData.length) return;
 
-if(!cardsData.length)return;
+  const card = cardsData[currentIndex];
 
-const card=
-cardsData[currentIndex];
+  const color = clean(card.color) || "#8A4FF5";
+  const shadow = clean(card.sombra) || "#43108f";
 
-const color=
-clean(card.color)||"#8A4FF5";
+  scene.style.setProperty("--color", color);
+  scene.style.setProperty("--shadow", shadow);
 
-const shadow=
-clean(card.sombra)||"#43108f";
+  cardTitle.textContent = clean(card.titulo) || "SIN TÍTULO";
+  questionText.textContent = clean(card.pregunta);
+  instructionText.textContent = clean(card.instruccion);
+  counter.textContent = (currentIndex + 1) + "/" + cardsData.length;
 
-scene.style.setProperty(
-"--color",
-color
-);
+  visualGraphic.src = clean(card.grafica_tiro);
 
-scene.style.setProperty(
-"--shadow",
-shadow
-);
+  const cover = document.querySelector(".vertical-cover");
+  cover.style.backgroundImage = `url("${clean(card.grafica_retiro)}")`;
+  cover.style.backgroundSize = "cover";
+  cover.style.backgroundPosition = "center";
 
-/* TITULO SOLO HORIZONTAL */
-
-cardTitle.innerHTML=
-clean(card.titulo);
-
-/* PREGUNTA */
-
-questionText.innerHTML=
-clean(card.pregunta);
-
-instructionText.innerHTML=
-clean(card.instruccion);
-
-counter.innerHTML=
-(currentIndex+1)+
-"/"+
-cardsData.length;
-
-/* IMAGEN FRENTE */
-
-visualGraphic.src=
-clean(card.grafica_tiro);
-
-/* REVERSO CARTA */
-
-const cover=
-document.querySelector(
-".vertical-cover"
-);
-
-cover.style.backgroundImage=
-`url("${clean(card.grafica_retiro)}")`;
-
-cover.style.backgroundSize=
-"cover";
-
-cover.style.backgroundPosition=
-"center";
-
-/* LIMPIAR */
-
-answerBox.value="";
-
-verticalCard.classList.remove(
-"open"
-);
-
+  answerBox.value = "";
+  verticalCard.classList.remove("open");
 }
 
-renderCard();
+function shuffleCards(){
+  if(!cardsData.length) return;
 
-},700)
+  cardsData.sort(() => Math.random() - 0.5);
+  currentIndex = 0;
 
+  verticalCard.classList.remove("open");
+  verticalCard.classList.add("shuffle");
+
+  setTimeout(() => {
+    verticalCard.classList.remove("shuffle");
+    renderCard();
+  }, 700);
 }
 
-document
-.getElementById("nextBtn")
-.onclick=()=>{
+function nextCard(){
+  if(!cardsData.length) return;
 
-currentIndex++;
+  currentIndex++;
 
-if(
-currentIndex>=cardsData.length
-){
-currentIndex=0
+  if(currentIndex >= cardsData.length){
+    currentIndex = 0;
+  }
+
+  verticalCard.classList.remove("open");
+  renderCard();
 }
 
-renderCard()
+document.getElementById("shuffleBtn").addEventListener("click", shuffleCards);
+document.getElementById("nextBtn").addEventListener("click", nextCard);
 
-}
+verticalCard.addEventListener("click", () => {
+  verticalCard.classList.toggle("open");
+});
 
-verticalCard.onclick=()=>{
+answerBox.addEventListener("keydown", e => {
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
 
-verticalCard
-.classList
-.toggle("open");
-
-}
-
-document
-.getElementById("answerBox")
-.addEventListener(
-"keydown",
-e=>{
-
-if(
-e.key==="Enter"
-){
-
-e.preventDefault();
-
-if(
-filledStars<6
-){
-
-document
-.querySelectorAll(
-".top-star"
-)[filledStars]
-.innerHTML="★";
-
-filledStars++;
-
-}
-
-}
-
+    if(answerBox.value.trim() !== "" && filledStars < 6){
+      const stars = document.querySelectorAll(".top-star");
+      stars[filledStars].textContent = "★";
+      stars[filledStars].classList.add("filled");
+      filledStars++;
+    }
+  }
 });
 
 loadSheet();
-
 </script>
-
 </body>
 </html>
