@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1150, height=850, initial-scale=1.0">
+  
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;900&display=swap');
+
+@font-face{
+  font-family:"NauryzRedKends";
+  src:url("./fonts/NauryzRedKends-Bold.woff2") format("woff2");
+  font-weight:700;
+  font-style:normal;
+}
+  
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:"Poppins", Arial, sans-serif;
+}
+
+.scene{
+--color:#8A4FF5;
+--shadow:#43108f;
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#fff;
+  background-image:var(--fondo);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+.controls{
+  position:absolute;
+  top:28.8%;
+  left:44%;
+  z-index:30;
+  display:flex;
+  gap:14px;
+}
+
+button{
+  background:#6d16d9;
+  color:white;
+  border:none;
+  border-radius:18px;
+  padding:16px 28px;
+  font-size:18px;
+  font-family:"Poppins", Arial, sans-serif;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 0 rgba(0,0,0,.18);
+}
+
+.timer{
+  position:absolute;
+  top:10.8%;
+  left:43.5%;
+  z-index:25;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#000;
+  font-size:34px;
+  font-family:"Poppins", Arial, sans-serif;
+  font-weight:700;
+}
+
+.timer img{
+  width:44px;
+  height:44px;
+  object-fit:contain;
+}
+
+.timer-label{
+  position:absolute;
+  top:-16px;
+  left:56px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.4px;
+}
+
+.player-box{
+  position:absolute;
+  top:8.7%;
+  right:5.3%;
+  z-index:25;
+  width:250px;
+}
+
+.name-input{
+  width:0px;
+  height:34px;
+  border:0;
+  outline:none;
+  border-radius:18px;
+  padding:0 18px;
+  font-size:18px;
+  font-family:"Poppins", Arial, sans-serif;
+  font-weight:700;
+  color:#6d16d9;
+  background:rgba(255,255,255,.75);
+  text-transform:uppercase;
+}
+
+.name-input::placeholder{
+  color:#6d16d9;
+  opacity:.9;
+}
+
+.top-stars{
+  margin-top:7px;
+  display:flex;
+  gap:6px;
+}
+
+.top-star{
+  font-size:32px;
+  color:#000;
+  line-height:1;
+  user-select:none;
+}
+
+.top-star.filled{
+  color:var(--color);
+}
+
+/* CARTA HORIZONTAL */
+.question-card{
+  position:absolute;
+  left:30%;
+  top:35%;
+  width:45%;
+  height:35%;
+  background:#fffdf6;
+  border:4px solid #000;
+  border-radius:22px;
+  box-shadow:16px 18px 0 var(--color);
+  z-index:8;
+  transform:rotate(-1.5deg);
+  padding:70px 42px 30px;
+  box-sizing:border-box;
+}
+
+.label{
+position:absolute;
+
+/* sube el parche */
+top:-22px;
+
+left:-50px;
+
+/* un poquito más angosto */
+width:40%;
+
+/* más bajito */
+min-height:32px;
+
+/* menos relleno vertical */
+padding:6px 22px;
+
+background:var(--color);
+color:white;
+
+border-radius:12px;
+
+transform:rotate(-4deg);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+box-shadow:
+8px 8px 0
+var(--shadow);
+
+z-index:20;
+}
+
+.label-title{
+  font-family:"NauryzRedKends","Poppins",sans-serif;
+  font-size:18pt;
+  font-weight:700;
+  line-height:.95;
+  text-align:center;
+  text-transform:uppercase;
+}
+
+.question{
+  font-family:"Poppins",sans-serif;
+  font-size:18pt;
+  font-weight:500;
+  line-height:1.08;
+}
+
+.counter{
+  position:absolute;
+  right:54px;
+  top:34px;
+  font-size:24px;
+}
+
+.answer-box{
+  position:absolute;
+  left:28.6%;
+  top:73%;
+  width:25.5%;
+  height:5.8%;
+  border:0;
+  background:transparent;
+  resize:none;
+  outline:none;
+  z-index:20;
+  font-family:"Poppins";
+  font-size:18px;
+  padding:8px 18px;
+  box-sizing:border-box;
+}
+
+.instruction{
+  position:absolute;
+  left:28.6%;
+  top:83.6%;
+  width:35.5%;
+  text-align:center;
+  font-size:20px;
+}
+
+/* CARTA VERTICAL */
+.vertical-card{
+  position:absolute;
+  left:49%;
+  top:23.8%;
+  width:22%;
+  height:58%;
+  z-index:18;
+  perspective:1200px;
+  cursor:pointer;
+}
+
+.vertical-inner{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .65s ease;
+}
+
+.vertical-card.open .vertical-inner{
+  transform:rotateY(180deg);
+}
+
+.vertical-face{
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:22px;
+  overflow:hidden;
+  backface-visibility:hidden;
+  box-shadow:14px 18px 0 rgba(64,0,150,.65);
+}
+
+.vertical-cover{
+  background:var(--color);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  transform:rotate(8deg);
+}
+
+.vertical-front{
+  background:#fff;
+  transform:rotateY(180deg) rotate(8deg);
+}
+
+.vertical-front img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.close-card{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#000;
+  color:white;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+}
+
+.vertical-card.open .close-card{
+display:flex;
+}
+
+.shuffle{
+animation:shuffleVertical .7s ease;
+}
+
+@keyframes shuffleVertical{
+0%{transform:translate(0,0) rotate(8deg);}
+20%{transform:translate(-35px,18px) rotate(-7deg);}
+45%{transform:translate(28px,-22px) rotate(13deg);}
+70%{transform:translate(-18px,12px) rotate(-4deg);}
+100%{transform:translate(0,0) rotate(8deg);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="scene" id="scene">
+
+<div class="controls">
+<button id="shuffleBtn">Barajar</button>
+<button id="nextBtn">Siguiente</button>
+</div>
+
+<div class="timer" id="timer">
+<img id="timerGif" src="">
+<div>
+<div class="timer-label">TIEMPO</div>
+<span id="timeNumber">30</span>
+</div>
+</div>
+
+<div class="player-box">
+<input class="name-input" placeholder="TU NOMBRE">
+
+<div class="top-stars">
+<span class="top-star">☆</span>
+<span class="top-star">☆</span>
+<span class="top-star">☆</span>
+<span class="top-star">☆</span>
+<span class="top-star">☆</span>
+<span class="top-star">☆</span>
+</div>
+</div>
+
+<div class="question-card">
+
+<div class="label">
+<div class="label-title" id="cardTitle">
+Cargando...
+</div>
+</div>
+
+<div class="question" id="questionText"></div>
+
+<div class="counter" id="counter">
+1/1
+</div>
+
+</div>
+
+<textarea
+class="answer-box"
+id="answerBox"
+placeholder="Escribe aquí..."></textarea>
+
+<div
+class="instruction"
+id="instructionText"></div>
+
+<div class="vertical-card"
+id="verticalCard">
+
+<div class="close-card"
+id="closeCard">✕</div>
+
+<div class="vertical-inner">
+
+<div
+class="vertical-face vertical-cover">
+</div>
+
+<div
+class="vertical-face vertical-front">
+
+<img id="visualGraphic">
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+const sheetID = "1TNjFeeLHmZxSJTIzpYOpQTcaZj8-pSK59IkAL1aV6Xo";
+const sheetGID = "343832896";
+
+let cardsData = [];
+let currentIndex = 0;
+let filledStars = 0;
+let hasRevealedOnce = false;
+
+let timerInterval;
+let tickInterval;
+let timeLeft = 30;
+let audioCtx = null;
+
+const scene = document.getElementById("scene");
+const verticalCard = document.getElementById("verticalCard");
+const cardTitle = document.getElementById("cardTitle");
+const questionText = document.getElementById("questionText");
+const counter = document.getElementById("counter");
+const instructionText = document.getElementById("instructionText");
+const visualGraphic = document.getElementById("visualGraphic");
+const answerBox = document.getElementById("answerBox");
+const timeNumber = document.getElementById("timeNumber");
+const verticalCover = document.querySelector(".vertical-cover");
+const timerGif = document.getElementById("timerGif");
+
+function clean(t) {
+  return (t || "")
+    .replace(/[”“]/g, '"')
+    .replace(/^\s+|\s+$/g, '')
+    .replace(/^"+|"+$/g, '');
+}
+
+function normalizeKey(t) {
+  return clean(t)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "_");
+}
+
+function normalizeImageURL(url) {
+  url = clean(url);
+  if (!url) return "";
+
+  // Convierte enlaces compartidos de Google Drive a enlaces más amigables para <img> y background-image.
+  // Ejemplo: https://drive.google.com/file/d/ID/view?usp=sharing
+  const driveFile = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveFile && driveFile[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveFile[1]}`;
+  }
+
+  // Ejemplo: https://drive.google.com/open?id=ID o ?id=ID
+  const driveId = url.match(/[?&]id=([^&]+)/);
+  if (url.includes("drive.google.com") && driveId && driveId[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveId[1]}`;
+  }
+
+  return url;
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inside = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
+
+    if (c === '"' && inside && next === '"') {
+      cell += '"';
+      i++;
+      continue;
+    }
+
+    if (c === '"') {
+      inside = !inside;
+      continue;
+    }
+
+    if (c === "," && !inside) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if ((c === "\n" || c === "\r") && !inside) {
+      if (c === "\r" && next === "\n") i++;
+      if (cell.length || row.length) {
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+      }
+      continue;
+    }
+
+    cell += c;
+  }
+
+  if (cell.length || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  if (!rows.length) return [];
+
+  const headers = rows[0].map(x => normalizeKey(x));
+
+  return rows.slice(1)
+    .map(r => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = clean(r[i]);
+      });
+      return obj;
+    })
+    .filter(x => x.pregunta || x.grafica_tiro || x.grafica_retiro);
+}
+
+function getCell(row, index) {
+  if (!row.c || !row.c[index]) return "";
+  return clean(row.c[index].f || row.c[index].v || "");
+}
+
+function parseGoogleSheetData(data) {
+  if (!data || !data.table || !data.table.cols || !data.table.rows) {
+    return [];
+  }
+
+  const headers = data.table.cols.map(col => normalizeKey(col.label || ""));
+
+  return data.table.rows
+    .map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = getCell(row, i);
+      });
+      return obj;
+    })
+    .filter(x => x.pregunta || x.grafica_tiro || x.grafica_retiro);
+}
+
+function loadSheet() {
+  questionText.innerHTML = "Cargando...";
+
+  window.google = window.google || {};
+  window.google.visualization = window.google.visualization || {};
+  window.google.visualization.Query = window.google.visualization.Query || {};
+
+  window.google.visualization.Query.setResponse = function(data) {
+    try {
+      cardsData = parseGoogleSheetData(data);
+      console.log("Cartas cargadas desde Google Visualization:", cardsData);
+
+      if (!cardsData.length) {
+        questionText.innerHTML = "No carga Sheet";
+        return;
+      }
+
+      currentIndex = 0;
+      prepareCard(false);
+    } catch (e) {
+      console.error(e);
+      questionText.innerHTML = "Error Sheet";
+    }
+  };
+
+  const oldScript = document.getElementById("sheetLoader");
+  if (oldScript) oldScript.remove();
+
+  const script = document.createElement("script");
+  script.id = "sheetLoader";
+  script.src =
+    "https://docs.google.com/spreadsheets/d/" +
+    sheetID +
+    "/gviz/tq?tqx=out:json&gid=" +
+    sheetGID +
+    "&t=" +
+    Date.now();
+
+  script.onerror = function() {
+    questionText.innerHTML = "Error Sheet";
+    console.error("No se pudo cargar Google Sheet");
+  };
+
+  document.body.appendChild(script);
+}
+
+function getCard() {
+  return cardsData[currentIndex];
+}
+
+function prepareCard(keepPreviousQuestion = true) {
+  const card = getCard();
+  if (!card) return;
+
+  scene.style.setProperty("--color", card.color || "#8A4FF5");
+  scene.style.setProperty("--shadow", card.sombra || "#43108f");
+
+  const retiro = normalizeImageURL(card.grafica_retiro);
+  const tiro = normalizeImageURL(card.grafica_tiro);
+  const fondo = normalizeImageURL(card.fondo);
+  const gif = normalizeImageURL(card.timer_gif || card.gif_timer || card.gif || "");
+
+  if (fondo) {
+    scene.style.setProperty("--fondo", `url("${fondo}")`);
+  }
+
+  if (gif) {
+    timerGif.src = gif;
+  }
+
+  // La carta vertical SIEMPRE inicia tapada con grafica_retiro.
+  verticalCard.classList.remove("open");
+  verticalCover.style.backgroundImage = retiro ? `url("${retiro}")` : "none";
+  visualGraphic.removeAttribute("src");
+  if (tiro) visualGraphic.src = tiro;
+
+  visualGraphic.onerror = function() {
+    console.warn("No cargó grafica_tiro:", tiro);
+  };
+
+  timeLeft = Number(card.tiempo) || 30;
+  timeNumber.innerHTML = timeLeft;
+  answerBox.value = "";
+  stopTimer();
+
+  // IMPORTANTE: al preparar/siguiente NO se cambia la pregunta.
+  // Solo se muestra mensaje inicial antes de la primera revelación.
+  if (!hasRevealedOnce && !keepPreviousQuestion) {
+    cardTitle.innerHTML = "CARTA";
+    questionText.innerHTML = "Toca para revelar";
+    instructionText.innerHTML = "";
+    counter.innerHTML = (currentIndex + 1) + "/" + cardsData.length;
+  }
+}
+
+function revealCurrentCard() {
+  const card = getCard();
+  if (!card) return;
+
+  // La pregunta horizontal se actualiza ÚNICAMENTE aquí, al voltear/abrir.
+  cardTitle.innerHTML = card.titulo || "SIN TITULO";
+  questionText.innerHTML = card.pregunta || "";
+  instructionText.innerHTML = card.instruccion || "";
+  counter.innerHTML = (currentIndex + 1) + "/" + cardsData.length;
+  hasRevealedOnce = true;
+}
+
+function nextCard() {
+  if (!cardsData.length) return;
+
+  currentIndex++;
+
+  if (currentIndex >= cardsData.length) {
+    currentIndex = 0;
+  }
+
+  // Siguiente prepara la nueva carta tapada, pero NO cambia la pregunta todavía.
+  prepareCard(true);
+}
+
+function shuffleCards() {
+  if (!cardsData.length) return;
+
+  cardsData.sort(() => Math.random() - 0.5);
+  currentIndex = 0;
+
+  verticalCard.classList.add("shuffle");
+
+  setTimeout(() => {
+    verticalCard.classList.remove("shuffle");
+    // Barajar también deja la carta tapada y NO cambia la pregunta hasta revelar.
+    prepareCard(true);
+  }, 700);
+}
+
+function ensureAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+}
+
+function beep(freq = 880, duration = 0.045, volume = 0.045) {
+  if (!audioCtx) return;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.frequency.value = freq;
+  osc.type = "sine";
+  gain.gain.value = volume;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function startTickSound() {
+  clearInterval(tickInterval);
+  beep(760, 0.035, 0.035);
+  tickInterval = setInterval(() => {
+    beep(760, 0.035, 0.035);
+  }, 1000);
+}
+
+function alarmSound() {
+  beep(520, 0.08, 0.06);
+  setTimeout(() => beep(420, 0.08, 0.06), 130);
+  setTimeout(() => beep(520, 0.08, 0.06), 260);
+}
+
+function startTimer() {
+  stopTimer();
+  ensureAudio();
+  startTickSound();
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timeNumber.innerHTML = timeLeft;
+
+    if (timeLeft <= 0) {
+      stopTimer();
+      timeNumber.innerHTML = 0;
+      alarmSound();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  clearInterval(tickInterval);
+}
+
+verticalCard.addEventListener("click", () => {
+  if (!cardsData.length) return;
+
+  const willOpen = !verticalCard.classList.contains("open");
+  verticalCard.classList.toggle("open");
+
+  if (willOpen) {
+    revealCurrentCard();
+    startTimer();
+  } else {
+    stopTimer();
+  }
+});
+
+document.getElementById("shuffleBtn").onclick = shuffleCards;
+document.getElementById("nextBtn").onclick = nextCard;
+
+answerBox.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+
+    if (filledStars < 6) {
+      document.querySelectorAll(".top-star")[filledStars].innerHTML = "★";
+      document.querySelectorAll(".top-star")[filledStars].classList.add("filled");
+      filledStars++;
+    }
+  }
+});
+
+loadSheet();
+
+</script>
+</body>
+</html>
