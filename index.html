@@ -5,12 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;900&display=swap');
+
+@font-face{
+  font-family:"NauryzRedKends";
+  src:url("fonts/NauryzRedKends-Bold.woff2") format("woff2");
+  font-weight:700;
+  font-style:normal;
+}
+
 html,body{
   margin:0;
   width:100%;
   height:100%;
   overflow:hidden;
-  font-family:Arial, Helvetica, sans-serif;
+  font-family:"Poppins", Arial, sans-serif;
 }
 
 .scene{
@@ -41,6 +50,7 @@ button{
   border-radius:18px;
   padding:16px 28px;
   font-size:22px;
+  font-family:"Poppins", Arial, sans-serif;
   font-weight:900;
   cursor:pointer;
   box-shadow:0 8px 0 rgba(0,0,0,.18);
@@ -56,7 +66,8 @@ button{
   gap:10px;
   color:#000;
   font-size:34px;
-  font-weight:900;
+  font-family:"Poppins", Arial, sans-serif;
+  font-weight:700;
 }
 
 .timer img{
@@ -70,11 +81,10 @@ button{
   top:-16px;
   left:56px;
   font-size:11px;
-  font-weight:900;
+  font-weight:700;
   letter-spacing:.4px;
 }
 
-/* NOMBRE Y ESTRELLAS ARRIBA */
 .player-box{
   position:absolute;
   top:8.7%;
@@ -91,7 +101,8 @@ button{
   border-radius:18px;
   padding:0 18px;
   font-size:18px;
-  font-weight:900;
+  font-family:"Poppins", Arial, sans-serif;
+  font-weight:700;
   color:#6d16d9;
   background:rgba(255,255,255,.75);
   text-transform:uppercase;
@@ -132,34 +143,42 @@ button{
   box-shadow:16px 18px 0 var(--color);
   z-index:8;
   transform:rotate(-1.5deg);
-  padding:58px 42px 30px;
+  padding:70px 42px 30px;
   box-sizing:border-box;
 }
 
 .label{
   position:absolute;
-  top:-34px;
+  top:-44px;
   left:28px;
-  width:58%;
+  width:76%;
+  min-height:82px;
   background:var(--color);
   color:white;
   border-radius:10px;
   padding:10px 24px;
   transform:rotate(-4deg);
   box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .label-title{
-  font-size:26px;
-  font-weight:900;
+  font-family:"NauryzRedKends","Poppins",Arial,sans-serif;
+  font-size:54pt;
+  font-weight:700;
+  line-height:.82;
+  text-align:center;
   text-transform:uppercase;
-  line-height:.95;
+  letter-spacing:.5px;
 }
 
 .question{
-  font-size:27px;
-  line-height:1.13;
-  font-weight:900;
+  font-family:"Poppins", Arial, sans-serif;
+  font-size:32pt;
+  line-height:1.08;
+  font-weight:500;
   color:#000;
   max-width:82%;
 }
@@ -168,36 +187,38 @@ button{
   position:absolute;
   right:34px;
   top:34px;
-  font-size:26px;
+  font-family:"Poppins", Arial, sans-serif;
+  font-size:24px;
+  font-weight:500;
   font-style:italic;
   color:#000;
 }
 
-/* CAJA DE RESPUESTA DENTRO DEL RECUADRO PUNTEADO */
+/* CAJA DE RESPUESTA */
 .answer-box{
   position:absolute;
   left:28.6%;
   top:73%;
   width:25.5%;
   height:5.8%;
-  border:2px;
+  border:0;
   background:transparent;
   resize:none;
-  outline:5px;
+  outline:none;
   z-index:20;
+  font-family:"Poppins", Arial, sans-serif;
   font-size:18px;
   line-height:1.25;
   padding:8px 18px;
   box-sizing:border-box;
   color:#333;
-  font-weight:600;
+  font-weight:500;
 }
 
 .answer-box::placeholder{
   color:rgba(0,0,0,.45);
 }
 
-/* NOTA DISCRETA */
 .instruction{
   position:absolute;
   left:28.6%;
@@ -210,8 +231,9 @@ button{
   text-align:center;
   padding:4px 12px;
   box-sizing:border-box;
+  font-family:"Poppins", Arial, sans-serif;
   font-size:20px;
-  font-weight:700;
+  font-weight:500;
   color:rgba(0,0,0,.75);
   background:transparent;
 }
@@ -253,6 +275,8 @@ button{
 
 .vertical-cover{
   background:var(--color);
+  background-size:cover;
+  background-position:center;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -279,16 +303,20 @@ button{
 .cover-title{
   position:relative;
   z-index:2;
-  font-size:34px;
-  font-weight:900;
+  font-family:"NauryzRedKends","Poppins",Arial,sans-serif;
+  font-size:44pt;
+  font-weight:700;
   text-align:center;
+  text-transform:uppercase;
 }
 
 .cover-sub{
   position:relative;
   z-index:2;
   margin-top:8px;
+  font-family:"Poppins", Arial, sans-serif;
   font-size:18px;
+  font-weight:500;
   font-style:italic;
 }
 
@@ -346,39 +374,6 @@ button{
   50%{transform:translateX(4px);}
   75%{transform:translateX(-4px);}
   100%{transform:translateX(0);}
-}
-
-@media(max-width:900px){
-  button{
-    font-size:13px;
-    padding:10px 16px;
-    border-radius:12px;
-  }
-
-  .timer{
-    font-size:22px;
-  }
-
-  .timer img{
-    width:30px;
-    height:30px;
-  }
-
-  .question{
-    font-size:20px;
-  }
-
-  .label-title{
-    font-size:20px;
-  }
-
-  .label-sub{
-    font-size:11px;
-  }
-
-  .top-star{
-    font-size:22px;
-  }
 }
 </style>
 </head>
@@ -468,6 +463,13 @@ const visualGraphic = document.getElementById("visualGraphic");
 const coverTitle = document.getElementById("coverTitle");
 const answerBox = document.getElementById("answerBox");
 
+function clean(value){
+  return (value || "")
+    .replace(/[“”]/g,'"')
+    .replace(/[‘’]/g,"'")
+    .trim();
+}
+
 function parseCSV(text){
   const rows = [];
   let row = [];
@@ -503,12 +505,12 @@ function parseCSV(text){
     rows.push(row);
   }
 
-  const headers = rows[0].map(h => h.trim());
+  const headers = rows[0].map(h => clean(h));
 
   return rows.slice(1).map(r => {
     const item = {};
     headers.forEach((h,i)=>{
-      item[h] = (r[i] || "").trim();
+      item[h] = clean(r[i]);
     });
     return item;
   }).filter(item => item.pregunta || item.titulo);
@@ -518,11 +520,7 @@ function loadSheet(){
   fetch(sheetURL + "&cache=" + Date.now())
     .then(response => response.text())
     .then(csv => {
-      console.log("CSV:", csv);
-
-      cardsData = parseCSV(csv).filter(row => row.pregunta || row.titulo);
-
-      console.log("DATOS:", cardsData);
+      cardsData = parseCSV(csv);
 
       if(cardsData.length === 0){
         questionText.textContent = "No hay cartas válidas. Revisa encabezados del Sheet.";
@@ -539,72 +537,38 @@ function loadSheet(){
 }
 
 function renderCard(){
+  if(!cardsData.length) return;
 
- if(!cardsData.length)return;
+  const card = cardsData[currentIndex];
+  const color = clean(card.color) || "#8A4FF5";
 
- const card=cardsData[currentIndex];
+  scene.style.setProperty("--color", color);
 
- const color=
- (card.color || "#8A4FF5").trim();
+  cardTitle.textContent = clean(card.titulo) || "SIN TÍTULO";
+  coverTitle.textContent = clean(card.titulo) || "CARTA";
+  questionText.textContent = clean(card.pregunta);
+  counter.textContent = `${currentIndex + 1}/${cardsData.length}`;
+  instructionText.textContent = clean(card.instruccion);
 
- scene.style.setProperty(
- "--color",
- color
- );
+  visualGraphic.src = clean(card.grafica_tiro);
 
- cardTitle.textContent=
- (card.titulo || "SIN TÍTULO").trim();
+  const cover = document.querySelector(".vertical-cover");
 
- coverTitle.textContent=
- (card.titulo || "CARTA").trim();
+  if(clean(card.grafica_retiro)){
+    cover.style.backgroundImage = `url("${clean(card.grafica_retiro)}")`;
+    cover.style.backgroundSize = "cover";
+    cover.style.backgroundPosition = "center";
+  }else{
+    cover.style.backgroundImage = "none";
+  }
 
- questionText.textContent=
- (card.pregunta || "").trim();
+  timeLeft = Number(clean(card.tiempo)) || 30;
+  timeNumber.textContent = timeLeft;
 
- counter.textContent=
- `${currentIndex+1}/${cardsData.length}`;
+  answerBox.value = "";
+  verticalCard.classList.remove("open");
 
- instructionText.textContent=
- (card.instruccion || "").trim();
-
- visualGraphic.src=
- (card.grafica_tiro || "").trim();
-
- const cover=
- document.querySelector(".vertical-cover");
-
- if(card.grafica_retiro){
-
-   cover.style.backgroundImage=
-   `url("${card.grafica_retiro.trim()}")`;
-
-   cover.style.backgroundSize=
-   "cover";
-
-   cover.style.backgroundPosition=
-   "center";
-
- }else{
-
-   cover.style.backgroundImage=
-   "none";
-
- }
-
- timeLeft=
- Number(card.tiempo)||30;
-
- timeNumber.textContent=
- timeLeft;
-
- answerBox.value="";
-
- verticalCard.classList.remove(
- "open"
- );
-
- stopTimer();
-
+  stopTimer();
 }
 
 function updateStars(){
