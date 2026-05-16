@@ -467,7 +467,6 @@ const verticalCard = document.getElementById("verticalCard");
 const timer = document.getElementById("timer");
 
 const cardTitle = document.getElementById("cardTitle");
-const cardSubtitle = document.getElementById("cardSubtitle");
 const questionText = document.getElementById("questionText");
 const counter = document.getElementById("counter");
 const instructionText = document.getElementById("instructionText");
@@ -548,44 +547,72 @@ function loadSheet(){
 }
 
 function renderCard(){
-  const card = cardsData[currentIndex];
-  const color = card.color || "#8A4FF5";
 
-  scene.style.setProperty("--color", color);
+ if(!cardsData.length)return;
 
-  cardTitle.textContent =
-(card.titulo || "SIN TÍTULO").trim();
-  cardSubtitle.textContent = card.subtitulo || "";
-  coverTitle.textContent = card.titulo || "CARTA";
-  questionText.textContent =
-(card.pregunta || "").trim();
-  counter.textContent = `${currentIndex + 1}/${cardsData.length}`;
-  instructionText.textContent =
-(card.instruccion || "").trim();
+ const card=cardsData[currentIndex];
 
-  visualGraphic.src = (card.grafica_tiro || "").trim();
+ const color=
+ (card.color || "#8A4FF5").trim();
 
-const cover = document.querySelector(".vertical-cover");
+ scene.style.setProperty(
+ "--color",
+ color
+ );
 
-if(card.grafica_retiro){
-  cover.style.backgroundImage = `url("${card.grafica_retiro.trim()}")`;
-  cover.style.backgroundSize = "cover";
-  cover.style.backgroundPosition = "center";
-}else{
-  cover.style.backgroundImage = "none";
-}
+ cardTitle.textContent=
+ (card.titulo || "SIN TÍTULO").trim();
 
-  if(timerGif){
-    timerGif.style.display = "none";
-  }
+ coverTitle.textContent=
+ (card.titulo || "CARTA").trim();
 
-  timeLeft = Number(card.tiempo) || 30;
-  timeNumber.textContent = timeLeft;
+ questionText.textContent=
+ (card.pregunta || "").trim();
 
-  answerBox.value = "";
-  verticalCard.classList.remove("open");
+ counter.textContent=
+ `${currentIndex+1}/${cardsData.length}`;
 
-  stopTimer();
+ instructionText.textContent=
+ (card.instruccion || "").trim();
+
+ visualGraphic.src=
+ (card.grafica_tiro || "").trim();
+
+ const cover=
+ document.querySelector(".vertical-cover");
+
+ if(card.grafica_retiro){
+
+   cover.style.backgroundImage=
+   `url("${card.grafica_retiro.trim()}")`;
+
+   cover.style.backgroundSize=
+   "cover";
+
+   cover.style.backgroundPosition=
+   "center";
+
+ }else{
+
+   cover.style.backgroundImage=
+   "none";
+
+ }
+
+ timeLeft=
+ Number(card.tiempo)||30;
+
+ timeNumber.textContent=
+ timeLeft;
+
+ answerBox.value="";
+
+ verticalCard.classList.remove(
+ "open"
+ );
+
+ stopTimer();
+
 }
 
 function updateStars(){
