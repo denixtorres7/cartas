@@ -151,17 +151,25 @@ button{
 
 .label{
 position:absolute;
-top:-44px;
-left:28px;
-width:76%;
-min-height:82px;
+
+/* sube el parche */
+top:-62px;
+
+left:34px;
+
+/* un poquito más angosto */
+width:72%;
+
+/* más bajito */
+min-height:52px;
+
+/* menos relleno vertical */
+padding:6px 22px;
 
 background:var(--color);
-
 color:white;
-border-radius:14px;
 
-padding:12px 28px;
+border-radius:12px;
 
 transform:rotate(-4deg);
 
@@ -170,7 +178,7 @@ align-items:center;
 justify-content:center;
 
 box-shadow:
-10px 10px 0
+8px 8px 0
 var(--shadow);
 
 z-index:20;
@@ -178,9 +186,9 @@ z-index:20;
 
 .label-title{
   font-family:"NauryzRedKends","Poppins",sans-serif;
-  font-size:24pt;
+  font-size:18pt;
   font-weight:700;
-  line-height:.82;
+  line-height:.95;
   text-align:center;
   text-transform:uppercase;
 }
