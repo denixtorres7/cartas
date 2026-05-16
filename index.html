@@ -23,6 +23,8 @@ html,body{
 }
 
 .scene{
+--color:#8A4FF5;
+--shadow:#43108f;
   position:relative;
   width:100%;
   height:100%;
@@ -150,20 +152,30 @@ button{
 }
 
 .label{
-  position:absolute;
-  top:-44px;
-  left:28px;
-  width:76%;
-  min-height:82px;
-  background:var(--color);
-  color:white;
-  border-radius:10px;
-  padding:10px 24px;
-  transform:rotate(-4deg);
-  box-sizing:border-box;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+position:absolute;
+top:-44px;
+left:28px;
+width:76%;
+min-height:82px;
+
+background:var(--color);
+
+color:white;
+border-radius:14px;
+
+padding:12px 28px;
+
+transform:rotate(-4deg);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+box-shadow:
+10px 10px 0
+var(--shadow);
+
+z-index:20;
 }
 
 .label-title{
@@ -408,7 +420,9 @@ return(v||"")
 
 function parseCSV(text){
 
-const rows=text.trim().split(/\r?\n/);
+const rows=
+text.trim()
+.split(/\r?\n/);
 
 const headers=
 rows[0]
@@ -417,24 +431,30 @@ rows[0]
 
 return rows
 .slice(1)
-.map(r=>{
+.map(row=>{
 
-const cols=
-r.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)||[];
+const values=
+row.match(
+/(".*?"|[^",]+)(?=\s*,|\s*$)/g
+)||[];
 
 let item={};
 
 headers.forEach((h,i)=>{
 
 item[h]=
-clean(cols[i])
+clean(values[i])
 .replace(/^"|"$/g,"");
 
 });
 
 return item;
 
-});
+})
+
+.filter(
+x=>x.pregunta
+);
 
 }
 
@@ -456,16 +476,33 @@ renderCard();
 
 function renderCard(){
 
+if(!cardsData.length)return;
+
 const card=
 cardsData[currentIndex];
 
+const color=
+clean(card.color)||"#8A4FF5";
+
+const shadow=
+clean(card.sombra)||"#43108f";
+
 scene.style.setProperty(
 "--color",
-clean(card.color)
+color
 );
+
+scene.style.setProperty(
+"--shadow",
+shadow
+);
+
+/* TITULO SOLO HORIZONTAL */
 
 cardTitle.innerHTML=
 clean(card.titulo);
+
+/* PREGUNTA */
 
 questionText.innerHTML=
 clean(card.pregunta);
@@ -474,39 +511,40 @@ instructionText.innerHTML=
 clean(card.instruccion);
 
 counter.innerHTML=
-(currentIndex+1)
-+"/"+
+(currentIndex+1)+
+"/"+
 cardsData.length;
+
+/* IMAGEN FRENTE */
 
 visualGraphic.src=
 clean(card.grafica_tiro);
 
-document
-.querySelector(".vertical-cover")
-.style.backgroundImage=
+/* REVERSO CARTA */
+
+const cover=
+document.querySelector(
+".vertical-cover"
+);
+
+cover.style.backgroundImage=
 `url("${clean(card.grafica_retiro)}")`;
 
-}
+cover.style.backgroundSize=
+"cover";
 
-document
-.getElementById("shuffleBtn")
-.onclick=()=>{
+cover.style.backgroundPosition=
+"center";
 
-cardsData.sort(
-()=>Math.random()-0.5
-);
+/* LIMPIAR */
 
-currentIndex=0;
-
-verticalCard.classList.add(
-"shuffle"
-);
-
-setTimeout(()=>{
+answerBox.value="";
 
 verticalCard.classList.remove(
-"shuffle"
+"open"
 );
+
+}
 
 renderCard();
 
