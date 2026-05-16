@@ -417,6 +417,12 @@ const answerBox=document.getElementById("answerBox");
 const timeNumber=
 document.getElementById("timeNumber");
 
+const timerGif=document.getElementById("timerGif");
+
+let audioCtx=null;
+let timerSoundEnabled=true;
+let revealedIndex=null;
+
 function clean(t){
 
 return (t||"")
@@ -589,22 +595,7 @@ card.sombra||
 );
 
 
-/* titulo horizontal */
-
-cardTitle.innerHTML=
-card.titulo||
-"SIN TITULO";
-
-
-/* pregunta */
-
-questionText.innerHTML=
-card.pregunta||"";
-
-
-instructionText.innerHTML=
-card.instruccion||"";
-
+/* contador */
 
 counter.innerHTML=
 (currentIndex+1)+
@@ -612,22 +603,44 @@ counter.innerHTML=
 cardsData.length;
 
 
-/* frente carta */
+/* frente carta: grafica_tiro */
 
-visualGraphic.src=
-card.grafica_tiro;
+setImageSafe(
+visualGraphic,
+card.grafica_tiro
+);
 
 
-/* reverso carta */
+/* reverso carta: grafica_retiro */
 
-document
-.querySelector(
-".vertical-cover"
-)
+setBackgroundSafe(
+document.querySelector(".vertical-cover"),
+card.grafica_retiro
+);
 
-.style.backgroundImage=
 
-`url("${card.grafica_retiro}")`;
+/* fondo general, si existe en la hoja */
+
+if(card.fondo){
+
+setBackgroundSafe(
+scene,
+card.fondo
+);
+
+}
+
+
+/* gif del timer, si existe en la hoja */
+
+if(card.timer_gif||card.gif_timer){
+
+setImageSafe(
+timerGif,
+card.timer_gif||card.gif_timer
+);
+
+}
 
 
 /* timer */
@@ -648,6 +661,14 @@ verticalCard.classList.remove(
 );
 
 stopTimer();
+
+/*
+IMPORTANTE:
+Siguiente solo prepara la carta tapada.
+La pregunta horizontal NO cambia aquí.
+Solo se actualiza cuando la carta se voltea.
+*/
+clearHorizontalQuestion();
 
 }
 
@@ -706,6 +727,9 @@ function startTimer(){
 
 stopTimer();
 
+unlockAudio();
+playTick();
+
 timerInterval=
 setInterval(()=>{
 
@@ -714,12 +738,20 @@ timeLeft--;
 timeNumber.innerHTML=
 timeLeft;
 
+if(timeLeft>0){
+
+playTick();
+
+}
+
 if(timeLeft<=0){
 
 stopTimer();
 
 timeNumber.innerHTML=
 0;
+
+playAlarm();
 
 }
 
@@ -746,11 +778,7 @@ verticalCard
 "click",
 ()=>{
 
-verticalCard
-.classList
-.toggle(
-"open"
-);
+unlockAudio();
 
 if(
 verticalCard
@@ -760,13 +788,31 @@ verticalCard
 )
 ){
 
-startTimer();
-
-}else{
+verticalCard
+.classList
+.remove(
+"open"
+);
 
 stopTimer();
 
+return;
+
 }
+
+verticalCard
+.classList
+.add(
+"open"
+);
+
+/*
+La pregunta cambia únicamente aquí:
+cuando la carta vertical pasa de grafica_retiro a grafica_tiro.
+*/
+revealHorizontalQuestion();
+
+startTimer();
 
 }
 );
