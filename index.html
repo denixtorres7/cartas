@@ -524,15 +524,17 @@ function parseCSV(text){
 }
 
 function loadSheet(){
-  fetch(sheetURL)
+  fetch(sheetURL + "&cache=" + Date.now())
     .then(response => response.text())
     .then(csv => {
+      console.log("CSV:", csv);
+
       cardsData = parseCSV(csv).filter(row => row.pregunta || row.titulo);
 
-      console.log("DATOS DEL SHEET:", cardsData);
+      console.log("DATOS:", cardsData);
 
       if(cardsData.length === 0){
-        questionText.textContent = "El Google Sheets no tiene cartas válidas.";
+        questionText.textContent = "No hay cartas válidas. Revisa encabezados del Sheet.";
         return;
       }
 
@@ -540,7 +542,7 @@ function loadSheet(){
       renderCard();
     })
     .catch(error => {
-      console.error(error);
+      console.error("ERROR SHEET:", error);
       questionText.textContent = "No se pudo cargar Google Sheets.";
     });
 }
@@ -561,20 +563,17 @@ function renderCard(){
   instructionText.textContent =
 (card.instruccion || "").trim();
 
-  visualGraphic.src =
-(card.grafica_tiro || "").trim();
+  visualGraphic.src = (card.grafica_tiro || "").trim();
 
-  const cover = document.querySelector(".vertical-cover");
+const cover = document.querySelector(".vertical-cover");
 
-  if(card.grafica_retiro){
-    cover.style.backgroundImage = `url("${card.grafica_retiro}")`;
-    cover.style.backgroundSize = "cover";
-    cover.style.backgroundPosition = "center";
-    coverTitle.style.display = "none";
-  }else{
-    cover.style.backgroundImage = "none";
-    coverTitle.style.display = "block";
-  }
+if(card.grafica_retiro){
+  cover.style.backgroundImage = `url("${card.grafica_retiro.trim()}")`;
+  cover.style.backgroundSize = "cover";
+  cover.style.backgroundPosition = "center";
+}else{
+  cover.style.backgroundImage = "none";
+}
 
   if(timerGif){
     timerGif.style.display = "none";
