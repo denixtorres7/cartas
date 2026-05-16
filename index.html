@@ -135,7 +135,7 @@ button{
 /* CARTA HORIZONTAL */
 .question-card{
   position:absolute;
-  left:10%;
+  left:30%;
   top:35%;
   width:45%;
   height:35%;
@@ -236,7 +236,7 @@ z-index:20;
 /* CARTA VERTICAL */
 .vertical-card{
   position:absolute;
-  left:58%;
+  left:63.5%;
   top:23.8%;
   width:22%;
   height:58%;
@@ -401,8 +401,8 @@ class="vertical-face vertical-front">
 
 <script>
 
-const sheetID = "1TNjFeeLHmZxSJTIzpYOpQTcaZj8-pSK59IkAL1aV6Xo";
-const sheetGID = "343832896";
+const sheetURL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vSqZdZ17KRyJDc6ybE8eZKia2XuQ4a5Tba6WzrhFDJ4ejSgZBDU4WdSH54pWkY1BGgZNe79S_77zMiS/pub?gid=343832896&single=true&output=csv";
 
 let cardsData = [];
 let currentIndex = 0;
@@ -445,150 +445,69 @@ function normalizeImageURL(url) {
   url = clean(url);
   if (!url) return "";
 
-  // Convierte enlaces compartidos de Google Drive a enlaces más amigables para <img> y background-image.
-  // Ejemplo: https://drive.google.com/file/d/ID/view?usp=sharing
   const driveFile = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
   if (driveFile && driveFile[1]) {
     return `https://drive.google.com/uc?export=view&id=${driveFile[1]}`;
   }
 
-  // Ejemplo: https://drive.google.com/open?id=ID o ?id=ID
   const driveId = url.match(/[?&]id=([^&]+)/);
   if (url.includes("drive.google.com") && driveId && driveId[1]) {
     return `https://drive.google.com/uc?export=view&id=${driveId[1]}`;
   }
 
-  return url;
+  return encodeURI(url);
 }
 
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cell = "";
-  let inside = false;
+function normalizeColor(value, fallback) {
+  value = clean(value);
+  value = value.replace(/^:\s*/, "");
+  return value || fallback;
+}
 
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    const next = text[i + 1];
+function parseTable(text) {
+  const lines = text
+    .replace(/\r/g, "")
+    .split("\n")
+    .filter(line => line.trim() !== "");
 
-    if (c === '"' && inside && next === '"') {
-      cell += '"';
-      i++;
-      continue;
-    }
+  if (!lines.length) return [];
 
-    if (c === '"') {
-      inside = !inside;
-      continue;
-    }
+  const separator = lines[0].includes("\t") ? "\t" : ",";
+  const headers = lines[0].split(separator).map(x => normalizeKey(x));
 
-    if (c === "," && !inside) {
-      row.push(cell);
-      cell = "";
-      continue;
-    }
-
-    if ((c === "\n" || c === "\r") && !inside) {
-      if (c === "\r" && next === "\n") i++;
-      if (cell.length || row.length) {
-        row.push(cell);
-        rows.push(row);
-        row = [];
-        cell = "";
-      }
-      continue;
-    }
-
-    cell += c;
-  }
-
-  if (cell.length || row.length) {
-    row.push(cell);
-    rows.push(row);
-  }
-
-  if (!rows.length) return [];
-
-  const headers = rows[0].map(x => normalizeKey(x));
-
-  return rows.slice(1)
-    .map(r => {
+  return lines.slice(1)
+    .map(line => {
+      const cells = line.split(separator);
       const obj = {};
+
       headers.forEach((h, i) => {
-        obj[h] = clean(r[i]);
+        obj[h] = clean(cells[i] || "");
       });
-      return obj;
-    })
-    .filter(x => x.pregunta || x.grafica_tiro || x.grafica_retiro);
-}
 
-function getCell(row, index) {
-  if (!row.c || !row.c[index]) return "";
-  return clean(row.c[index].f || row.c[index].v || "");
-}
-
-function parseGoogleSheetData(data) {
-  if (!data || !data.table || !data.table.cols || !data.table.rows) {
-    return [];
-  }
-
-  const headers = data.table.cols.map(col => normalizeKey(col.label || ""));
-
-  return data.table.rows
-    .map(row => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        obj[h] = getCell(row, i);
-      });
       return obj;
     })
     .filter(x => x.pregunta || x.grafica_tiro || x.grafica_retiro);
 }
 
 function loadSheet() {
-  questionText.innerHTML = "Cargando...";
+  fetch(sheetURL + "&nocache=" + Date.now())
+    .then(r => r.text())
+    .then(csv => {
+      cardsData = parseTable(csv);
+      console.log("Cartas cargadas:", cardsData);
 
-  window.google = window.google || {};
-  window.google.visualization = window.google.visualization || {};
-  window.google.visualization.Query = window.google.visualization.Query || {};
-
-  window.google.visualization.Query.setResponse = function(data) {
-    try {
-      cardsData = parseGoogleSheetData(data);
-      console.log("Cartas cargadas desde Google Visualization:", cardsData);
-
-      if (!cardsData.length) {
-        questionText.innerHTML = "No carga Sheet";
+      if (cardsData.length === 0) {
+        questionText.innerHTML = "No carga CSV";
         return;
       }
 
       currentIndex = 0;
       prepareCard(false);
-    } catch (e) {
-      console.error(e);
+    })
+    .catch(e => {
+      console.log(e);
       questionText.innerHTML = "Error Sheet";
-    }
-  };
-
-  const oldScript = document.getElementById("sheetLoader");
-  if (oldScript) oldScript.remove();
-
-  const script = document.createElement("script");
-  script.id = "sheetLoader";
-  script.src =
-    "https://docs.google.com/spreadsheets/d/" +
-    sheetID +
-    "/gviz/tq?tqx=out:json&gid=" +
-    sheetGID +
-    "&t=" +
-    Date.now();
-
-  script.onerror = function() {
-    questionText.innerHTML = "Error Sheet";
-    console.error("No se pudo cargar Google Sheet");
-  };
-
-  document.body.appendChild(script);
+    });
 }
 
 function getCard() {
@@ -599,8 +518,8 @@ function prepareCard(keepPreviousQuestion = true) {
   const card = getCard();
   if (!card) return;
 
-  scene.style.setProperty("--color", card.color || "#8A4FF5");
-  scene.style.setProperty("--shadow", card.sombra || "#43108f");
+  scene.style.setProperty("--color", normalizeColor(card.color, "#8A4FF5"));
+  scene.style.setProperty("--shadow", normalizeColor(card.sombra, "#43108f"));
 
   const retiro = normalizeImageURL(card.grafica_retiro);
   const tiro = normalizeImageURL(card.grafica_tiro);
@@ -618,6 +537,15 @@ function prepareCard(keepPreviousQuestion = true) {
   // La carta vertical SIEMPRE inicia tapada con grafica_retiro.
   verticalCard.classList.remove("open");
   verticalCover.style.backgroundImage = retiro ? `url("${retiro}")` : "none";
+
+  if (retiro) {
+    const testRetiro = new Image();
+    testRetiro.onerror = function() {
+      console.warn("No cargó grafica_retiro:", retiro);
+      verticalCover.style.backgroundImage = "none";
+    };
+    testRetiro.src = retiro;
+  }
   visualGraphic.removeAttribute("src");
   if (tiro) visualGraphic.src = tiro;
 
