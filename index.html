@@ -464,7 +464,6 @@ let filledStars = 0;
 
 const scene = document.getElementById("scene");
 const verticalCard = document.getElementById("verticalCard");
-const questionCard = document.getElementById("questionCard");
 const timer = document.getElementById("timer");
 
 const cardTitle = document.getElementById("cardTitle");
@@ -479,35 +478,34 @@ const coverTitle = document.getElementById("coverTitle");
 const answerBox = document.getElementById("answerBox");
 
 function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let insideQuotes = false;
 
-  const lines = text.trim().split(/\r?\n/);
+  for(let i = 0; i < text.length; i++){
+    const char = text[i];
+    const next = text[i + 1];
 
-  const headers =
-    lines[0]
-      .split(/,|\t/)
-      .map(h=>h.trim());
-
-  return lines.slice(1).map(line=>{
-
-    const values =
-      line.split(/,|\t/);
-
-    const item={};
-
-    headers.forEach((header,index)=>{
-
-      item[header] =
-      values[index]
-      ? values[index].replace(/^"|"$/g,"").trim()
-      : "";
-
-    });
-
-    return item;
-
-  });
-
-}
+    if(char === '"' && insideQuotes && next === '"'){
+      cell += '"';
+      i++;
+    }else if(char === '"'){
+      insideQuotes = !insideQuotes;
+    }else if((char === "," || char === "\t") && !insideQuotes){
+      row.push(cell.trim());
+      cell = "";
+    }else if((char === "\n" || char === "\r") && !insideQuotes){
+      if(cell || row.length){
+        row.push(cell.trim());
+        rows.push(row);
+        row = [];
+        cell = "";
+      }
+    }else{
+      cell += char;
+    }
+  }
 
   if(cell || row.length){
     row.push(cell.trim());
@@ -526,68 +524,57 @@ function parseCSV(text){
 }
 
 function loadSheet(){
+  fetch(sheetURL)
+    .then(response => response.text())
+    .then(csv => {
+      cardsData = parseCSV(csv).filter(row => row.pregunta || row.titulo);
 
- fetch(sheetURL)
- .then(response=>response.text())
- .then(csv=>{
+      console.log("DATOS DEL SHEET:", cardsData);
 
-   cardsData=parseCSV(csv);
+      if(cardsData.length === 0){
+        questionText.textContent = "El Google Sheets no tiene cartas válidas.";
+        return;
+      }
 
-   console.log(cardsData);
-
-   currentIndex=0;
-
-   renderCard();
-
- })
-
- .catch(error=>{
-
-   console.log(error);
-
-   questionText.textContent=
-   "No cargó Google Sheets";
-
- });
-
+      currentIndex = 0;
+      renderCard();
+    })
+    .catch(error => {
+      console.error(error);
+      questionText.textContent = "No se pudo cargar Google Sheets.";
+    });
 }
 
 function renderCard(){
-  if(!cardsData.length) return;
-
   const card = cardsData[currentIndex];
   const color = card.color || "#8A4FF5";
 
   scene.style.setProperty("--color", color);
-
-scene.style.setProperty(
- "--fondo",
- card.grafica_retiro
- ? `url("${card.grafica_retiro}")`
- : "none"
-);
 
   cardTitle.textContent = card.titulo || "SIN TÍTULO";
   cardSubtitle.textContent = card.subtitulo || "";
   coverTitle.textContent = card.titulo || "CARTA";
   questionText.textContent = card.pregunta || "";
   counter.textContent = `${currentIndex + 1}/${cardsData.length}`;
+  instructionText.textContent = card.instruccion || "";
 
-  instructionText.textContent =
-card.instruccion || "";
+  visualGraphic.src = card.grafica_tiro || "";
 
-  visualGraphic.src =
-card.grafica_tiro || "";
+  const cover = document.querySelector(".vertical-cover");
 
-document.querySelector(".vertical-cover")
-.style.backgroundImage =
-`url("${card.grafica_retiro || ""}")`;
+  if(card.grafica_retiro){
+    cover.style.backgroundImage = `url("${card.grafica_retiro}")`;
+    cover.style.backgroundSize = "cover";
+    cover.style.backgroundPosition = "center";
+    coverTitle.style.display = "none";
+  }else{
+    cover.style.backgroundImage = "none";
+    coverTitle.style.display = "block";
+  }
 
-document.querySelector(".vertical-cover")
-.style.backgroundSize="cover";
-
-document.querySelector(".vertical-cover")
-.style.backgroundPosition="center";
+  if(timerGif){
+    timerGif.style.display = "none";
+  }
 
   timeLeft = Number(card.tiempo) || 30;
   timeNumber.textContent = timeLeft;
