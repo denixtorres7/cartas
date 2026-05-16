@@ -540,14 +540,18 @@ function renderCard(){
 
   scene.style.setProperty("--color", color);
 
-  cardTitle.textContent = card.titulo || "SIN TÍTULO";
+  cardTitle.textContent =
+(card.titulo || "SIN TÍTULO").trim();
   cardSubtitle.textContent = card.subtitulo || "";
   coverTitle.textContent = card.titulo || "CARTA";
-  questionText.textContent = card.pregunta || "";
+  questionText.textContent =
+(card.pregunta || "").trim();
   counter.textContent = `${currentIndex + 1}/${cardsData.length}`;
-  instructionText.textContent = card.instruccion || "";
+  instructionText.textContent =
+(card.instruccion || "").trim();
 
-  visualGraphic.src = card.grafica_tiro || "";
+  visualGraphic.src =
+(card.grafica_tiro || "").trim();
 
   const cover = document.querySelector(".vertical-cover");
 
