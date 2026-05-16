@@ -392,166 +392,439 @@ class="vertical-face vertical-front">
 </div>
 
 <script>
+
 const sheetURL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqZdZ17KRyJDc6ybE8eZKia2XuQ4a5Tba6WzrhFDJ4ejSgZBDU4WdSH54pWkY1BGgZNe79S_77zMiS/pub?gid=343832896&single=true&output=csv";
 
-let cardsData = [];
-let currentIndex = 0;
-let filledStars = 0;
+let cardsData=[];
+let currentIndex=0;
+let filledStars=0;
 
-const scene = document.getElementById("scene");
-const cardTitle = document.getElementById("cardTitle");
-const questionText = document.getElementById("questionText");
-const instructionText = document.getElementById("instructionText");
-const counter = document.getElementById("counter");
-const visualGraphic = document.getElementById("visualGraphic");
-const verticalCard = document.getElementById("verticalCard");
-const answerBox = document.getElementById("answerBox");
+let timerInterval;
+let tickInterval;
+let timeLeft=30;
 
-function clean(v){
-  return (v || "")
-    .replace(/[“”]/g, '"')
-    .replace(/^"|"$/g, "")
-    .trim();
+const scene=document.getElementById("scene");
+const verticalCard=document.getElementById("verticalCard");
+
+const cardTitle=document.getElementById("cardTitle");
+const questionText=document.getElementById("questionText");
+const counter=document.getElementById("counter");
+const instructionText=document.getElementById("instructionText");
+const visualGraphic=document.getElementById("visualGraphic");
+const answerBox=document.getElementById("answerBox");
+
+const timeNumber=
+document.getElementById("timeNumber");
+
+function clean(t){
+
+return (t||"")
+.replace(/[”“]/g,'"')
+.replace(/^\s+|\s+$/g,'')
+.replace(/^"+|"+$/g,'');
+
 }
+
 
 function parseCSV(text){
-  const rows = [];
-  let row = [];
-  let cell = "";
-  let quote = false;
 
-  for(let i = 0; i < text.length; i++){
-    const c = text[i];
-    const n = text[i + 1];
+const rows=[];
+let row=[];
+let cell="";
+let inside=false;
 
-    if(c === '"' && quote && n === '"'){
-      cell += '"';
-      i++;
-    }else if(c === '"'){
-      quote = !quote;
-    }else if(c === "," && !quote){
-      row.push(cell);
-      cell = "";
-    }else if((c === "\n" || c === "\r") && !quote){
-      if(cell || row.length){
-        row.push(cell);
-        rows.push(row);
-        row = [];
-        cell = "";
-      }
-    }else{
-      cell += c;
-    }
-  }
+for(let i=0;i<text.length;i++){
 
-  if(cell || row.length){
-    row.push(cell);
-    rows.push(row);
-  }
+const c=text[i];
 
-  const headers = rows[0].map(h => clean(h));
-
-  return rows.slice(1).map(r => {
-    const item = {};
-    headers.forEach((h,i)=>{
-      item[h] = clean(r[i]);
-    });
-    return item;
-  }).filter(x => x.pregunta);
+if(c=='"'){
+inside=!inside;
+continue;
 }
+
+if(c=="," && !inside){
+
+row.push(cell);
+cell="";
+continue;
+
+}
+
+if(
+(c=="\n"||c=="\r")
+&& !inside
+){
+
+if(
+cell.length||
+row.length
+){
+
+row.push(cell);
+
+rows.push(row);
+
+row=[];
+
+cell="";
+
+}
+
+continue;
+
+}
+
+cell+=c;
+
+}
+
+if(cell.length||row.length){
+
+row.push(cell);
+
+rows.push(row);
+
+}
+
+const headers=
+rows[0]
+.map(x=>clean(x));
+
+return rows
+.slice(1)
+
+.map(r=>{
+
+let obj={};
+
+headers.forEach(
+(h,i)=>{
+
+obj[h]=clean(
+r[i]
+);
+
+});
+
+return obj;
+
+})
+
+.filter(
+x=>x.pregunta
+);
+
+}
+
 
 function loadSheet(){
-  fetch(sheetURL + "&cache=" + Date.now())
-    .then(r => r.text())
-    .then(csv => {
-      cardsData = parseCSV(csv);
-      currentIndex = 0;
-      renderCard();
-    })
-    .catch(error => {
-      console.error(error);
-      cardTitle.textContent = "ERROR";
-      questionText.textContent = "No se pudo cargar Google Sheets.";
-    });
+
+fetch(
+sheetURL+
+"&nocache="+
+Date.now()
+)
+
+.then(r=>r.text())
+
+.then(csv=>{
+
+console.log(csv);
+
+cardsData=
+parseCSV(csv);
+
+console.log(
+cardsData
+);
+
+if(
+cardsData.length==0
+){
+
+questionText.innerHTML=
+"No carga CSV";
+
+return;
+
 }
+
+renderCard();
+
+})
+
+.catch(e=>{
+
+console.log(e);
+
+questionText.innerHTML=
+"Error Sheet";
+
+})
+
+}
+
 
 function renderCard(){
-  if(!cardsData.length) return;
 
-  const card = cardsData[currentIndex];
+const card=
+cardsData[currentIndex];
 
-  const color = clean(card.color) || "#8A4FF5";
-  const shadow = clean(card.sombra) || "#43108f";
+if(!card)return;
 
-  scene.style.setProperty("--color", color);
-  scene.style.setProperty("--shadow", shadow);
 
-  cardTitle.textContent = clean(card.titulo) || "SIN TÍTULO";
-  questionText.textContent = clean(card.pregunta);
-  instructionText.textContent = clean(card.instruccion);
-  counter.textContent = (currentIndex + 1) + "/" + cardsData.length;
+/* colores */
 
-  visualGraphic.src = clean(card.grafica_tiro);
+scene.style.setProperty(
+"--color",
+card.color||
+"#8A4FF5"
+);
 
-  const cover = document.querySelector(".vertical-cover");
-  cover.style.backgroundImage = `url("${clean(card.grafica_retiro)}")`;
-  cover.style.backgroundSize = "cover";
-  cover.style.backgroundPosition = "center";
+scene.style.setProperty(
+"--shadow",
+card.sombra||
+"#43108f"
+);
 
-  answerBox.value = "";
-  verticalCard.classList.remove("open");
+
+/* titulo horizontal */
+
+cardTitle.innerHTML=
+card.titulo||
+"SIN TITULO";
+
+
+/* pregunta */
+
+questionText.innerHTML=
+card.pregunta||"";
+
+
+instructionText.innerHTML=
+card.instruccion||"";
+
+
+counter.innerHTML=
+(currentIndex+1)+
+"/"+
+cardsData.length;
+
+
+/* frente carta */
+
+visualGraphic.src=
+card.grafica_tiro;
+
+
+/* reverso carta */
+
+document
+.querySelector(
+".vertical-cover"
+)
+
+.style.backgroundImage=
+
+`url("${card.grafica_retiro}")`;
+
+
+/* timer */
+
+timeLeft=
+Number(
+card.tiempo
+)||30;
+
+timeNumber.innerHTML=
+timeLeft;
+
+
+answerBox.value="";
+
+verticalCard.classList.remove(
+"open"
+);
+
+stopTimer();
+
 }
 
-function shuffleCards(){
-  if(!cardsData.length) return;
 
-  cardsData.sort(() => Math.random() - 0.5);
-  currentIndex = 0;
-
-  verticalCard.classList.remove("open");
-  verticalCard.classList.add("shuffle");
-
-  setTimeout(() => {
-    verticalCard.classList.remove("shuffle");
-    renderCard();
-  }, 700);
-}
 
 function nextCard(){
-  if(!cardsData.length) return;
 
-  currentIndex++;
+currentIndex++;
 
-  if(currentIndex >= cardsData.length){
-    currentIndex = 0;
-  }
+if(
+currentIndex>=
+cardsData.length
+){
 
-  verticalCard.classList.remove("open");
-  renderCard();
+currentIndex=0;
+
 }
 
-document.getElementById("shuffleBtn").addEventListener("click", shuffleCards);
-document.getElementById("nextBtn").addEventListener("click", nextCard);
+renderCard();
 
-verticalCard.addEventListener("click", () => {
-  verticalCard.classList.toggle("open");
-});
+}
 
-answerBox.addEventListener("keydown", e => {
-  if(e.key === "Enter" && !e.shiftKey){
-    e.preventDefault();
 
-    if(answerBox.value.trim() !== "" && filledStars < 6){
-      const stars = document.querySelectorAll(".top-star");
-      stars[filledStars].textContent = "★";
-      stars[filledStars].classList.add("filled");
-      filledStars++;
-    }
-  }
-});
+
+function shuffleCards(){
+
+cardsData.sort(
+()=>Math.random()-.5
+);
+
+currentIndex=0;
+
+verticalCard
+.classList
+.add(
+"shuffle"
+);
+
+setTimeout(()=>{
+
+verticalCard
+.classList
+.remove(
+"shuffle"
+);
+
+renderCard();
+
+},700);
+
+}
+
+
+
+function startTimer(){
+
+stopTimer();
+
+timerInterval=
+setInterval(()=>{
+
+timeLeft--;
+
+timeNumber.innerHTML=
+timeLeft;
+
+if(timeLeft<=0){
+
+stopTimer();
+
+timeNumber.innerHTML=
+0;
+
+}
+
+},1000);
+
+}
+
+
+function stopTimer(){
+
+clearInterval(
+timerInterval
+);
+
+clearInterval(
+tickInterval
+);
+
+}
+
+
+verticalCard
+.addEventListener(
+"click",
+()=>{
+
+verticalCard
+.classList
+.toggle(
+"open"
+);
+
+if(
+verticalCard
+.classList
+.contains(
+"open"
+)
+){
+
+startTimer();
+
+}else{
+
+stopTimer();
+
+}
+
+}
+);
+
+
+document
+.getElementById(
+"shuffleBtn"
+)
+
+.onclick=
+shuffleCards;
+
+
+document
+.getElementById(
+"nextBtn"
+)
+
+.onclick=
+nextCard;
+
+
+
+answerBox
+.addEventListener(
+"keydown",
+e=>{
+
+if(
+e.key=="Enter"
+){
+
+e.preventDefault();
+
+if(
+filledStars<6
+){
+
+document
+.querySelectorAll(
+".top-star"
+)
+
+[filledStars]
+
+.innerHTML=
+"★";
+
+filledStars++;
+
+}
+
+}
+
+}
+);
 
 loadSheet();
+
 </script>
-</body>
-</html>
