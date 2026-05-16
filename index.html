@@ -478,38 +478,49 @@ const coverTitle = document.getElementById("coverTitle");
 const answerBox = document.getElementById("answerBox");
 
 function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quote = false;
 
-const lines = text.trim().split(/\r?\n/);
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    const n = text[i + 1];
 
-const headers =
-lines[0]
-.match(/(".*?"|[^",\t]+)(?=\s*,|\s*\t|\s*$)/g)
-.map(h=>h.replace(/^"|"$/g,"").trim());
+    if(c === '"' && quote && n === '"'){
+      cell += '"';
+      i++;
+    }else if(c === '"'){
+      quote = !quote;
+    }else if(c === "," && !quote){
+      row.push(cell);
+      cell = "";
+    }else if((c === "\n" || c === "\r") && !quote){
+      if(cell || row.length){
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+      }
+    }else{
+      cell += c;
+    }
+  }
 
-return lines.slice(1).map(line=>{
+  if(cell || row.length){
+    row.push(cell);
+    rows.push(row);
+  }
 
-const values=
-line.match(
-/(".*?"|[^",\t]+)(?=\s*,|\s*\t|\s*$)/g
-)||[];
+  const headers = rows[0].map(h => h.trim());
 
-const item={};
-
-headers.forEach((header,index)=>{
-
-item[header]=
-values[index]
-? values[index]
-.replace(/^"|"$/g,"")
-.trim()
-: "";
-
-});
-
-return item;
-
-});
-
+  return rows.slice(1).map(r => {
+    const item = {};
+    headers.forEach((h,i)=>{
+      item[h] = (r[i] || "").trim();
+    });
+    return item;
+  }).filter(item => item.pregunta || item.titulo);
 }
 
 function loadSheet(){
